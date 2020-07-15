@@ -20,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"
             integrity="sha512-I5TkutApDjnWuX+smLIPZNhw+LhTd8WrQhdCKsxCFRSvhFx2km8ZfEpNIhF9nq04msHhOkE8BMOBj5QE07yhMA=="
             crossorigin="anonymous"></script>
+    {% block external_scripts %}{% endblock %}
     <style>
         .markdown-body table {
             display: table;
@@ -86,9 +87,10 @@
 </head>
 <body>
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
-    <a class="navbar-brand" href="/blog/"><img src="{% static 'images/home.png' %}" alt="Home"></a>
+    <a class="navbar-brand" href="{% url 'blog-content' path='' %}"><img src="{% static 'images/home.png' %}"
+                                                                         alt="Home"></a>
     <div class="collapse navbar-collapse">
-        <form class="form-inline" action="/blog/search/" method="get">
+        <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
             <div class="input-group mr-sm-2">
                 <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
                        aria-label="搜索">
@@ -99,7 +101,9 @@
         </form>
         <ul class="navbar-nav mr-auto">
             {% for category in cate %}
-                <li class="nav-item"><a class="nav-link" href="/blog/{{ category }}">{{ category }}</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'blog-content' path='' %}{{ category }}">{{ category }}</a>
+                </li>
             {% endfor %}
         </ul>
         {% if request.user.is_authenticated %}
@@ -109,8 +113,15 @@
                     {{ request.user.username }} &laquo;{{ request.user.email }}&raquo;
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#"><i class="fas fa-plus">&nbsp;添加</i></a>
-                    <a class="dropdown-item" href="#"><i class="fas fa-pen">&nbsp;编辑</i></a>
+                    {% if request.user.is_superuser %}
+                        <a class="dropdown-item" href="{% url 'blog-publish' %}"><i class="fas fa-plus">&nbsp;添加</i></a>
+                        {% if stit is None %}
+                            <a class="dropdown-item"
+                               href="{% url 'blog-publish' %}?path={{ path | last | first | slice:":-1" }}">
+                                <i class="fas fa-pen">&nbsp;编辑</i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
                     <a class="dropdown-item" href="javascript:" onclick="logout()">
                         <i class="fas fa-sign-out-alt">&nbsp;登出</i>
                     </a>
@@ -131,12 +142,13 @@
                     {% if forloop.last %}
                         <li class="breadcrumb-item active">{{ name }}</li>
                     {% else %}
-                        <li class="breadcrumb-item"><a href="{{ href }}">{{ name }}</a></li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'blog-content' path='' %}{{ href }}">{{ name }}</a>
+                        </li>
                     {% endif %}
                 {% endfor %}
             </ul>
         </div>
-        <div class="col-1"></div>
     </div>
     <div class="row mb-3">
         <div class="col-1"></div>
@@ -147,12 +159,14 @@
                         <div class="markdown-body"><h2>{{ content_name }}</h2></div>
                         <div class="mb-3">
                             {% for tag in content_tags %}
-                                <a href="/blog/search/?tag={{ tag }}" class="badge badge-secondary">{{ tag }}</a>
+                                <a href="{% url 'blog-indices' %}?tag={{ tag }}" class="badge badge-secondary">
+                                    {{ tag }}
+                                </a>
                             {% endfor %}
                         </div>
                         <p>{{ content_desc }}</p>
                         <div class="text-muted text-right">
-                            <span>{{ publish_date }}&nbsp;&nbsp;&nbsp;&nbsp;{{ publish_desc }}</span>
+                            <span>{{ publish_date | date:"Y-m-d" }}&nbsp;&nbsp;&nbsp;&nbsp;{{ publish_desc }}</span>
                         </div>
                     </div>
                 </div>
@@ -192,8 +206,8 @@
                     <ul>
                         {% for title, date, href in rect %}
                             <li class="mb-3">
-                                <a href="/blog/{{ href }}">{{ title }}</a>
-                                <div class="text-muted text-right"><span>{{ date }}</span></div>
+                                <a href="{% url 'blog-content' path='' %}{{ href }}">{{ title }}</a>
+                                <div class="text-muted text-right"><span>{{ date | date:"Y-m-d" }}</span></div>
                             </li>
                         {% endfor %}
                     </ul>
@@ -204,7 +218,7 @@
                     <div class="markdown-body mb-3"><h2>标签</h2></div>
                     <h4>
                         {% for tag in tags %}
-                            <a href="/blog/search/?tag={{ tag }}" class="badge badge-secondary">{{ tag }}</a>
+                            <a href="{% url 'blog-indices' %}?tag={{ tag }}" class="badge badge-secondary">{{ tag }}</a>
                         {% endfor %}
                     </h4>
                 </div>
@@ -213,7 +227,6 @@
         <div class="col-8">
             <div class="card shadow">{% block content %}{% endblock %}</div>
         </div>
-        <div class="col-1"></div>
     </div>
     <div class="row mb-5">
         <hr style="width: 85%"/>

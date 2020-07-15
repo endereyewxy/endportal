@@ -11,8 +11,3 @@ class Blog(models.Model):
     content_tags = models.TextField()
     content_desc = models.TextField()
     content_text = models.TextField()
-
-    class Meta:
-        permissions = [
-            ('publish', 'Can publish blogs')
-        ]

@@ -1,9 +1,10 @@
 import re
 from urllib.parse import unquote
 
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import model_to_dict
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET
 from markdown import Markdown
@@ -28,7 +29,7 @@ def get_universal_context(path):
             tags.add(tag)
     recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in
               Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')[:5]]
-    href, path = '/blog/', path.split('/')
+    href, path = '', path.split('/')
     for i in range(len(path)):
         href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
     return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path}
@@ -72,7 +73,7 @@ def get_index_context(blog):
 
 # noinspection PyTypeChecker
 @require_GET
-def display(request, path):
+def content(request, path):
     path = unquote('/'.join(path[:-1].split('/')))
     context = get_universal_context(path)
 
@@ -86,13 +87,13 @@ def display(request, path):
             raise Http404()
             # Some fields are not required.
         context['blog'] = [get_index_context(blog) for blog in query_set]
-        return render(request, 'blog-index.html', context)
+        return render(request, 'blog-indices.html', context)
 
     # Process url links
     context['content_urls'] = [tuple(tag.split(';')) for tag in context['content_urls'].split(',')]
 
     # Process tags
-    context['content_tags'] = context['content_tags'].split(',')  # TODO add href to tags
+    context['content_tags'] = context['content_tags'].split(',')
 
     # Process content text according to its type
     if context['content_type'] == 'markdown':
@@ -130,12 +131,13 @@ def display(request, path):
                         (None,
                          [(context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end])]))
         context['content_toc'] = toc
-        return render(request, 'blog-markdown.html', context)
+
+    return render(request, 'blog-content.html', context)
 
 
 @require_GET
-def search(request):
-    title, tag = request.GET.get('title', ''), request.GET.get('tag', '')
+def indices(request):
+    title, tag = unquote(request.GET.get('title', '')), unquote(request.GET.get('tag', ''))
 
     # The breadcrumb part needs extra handling.
     context = get_universal_context('')
@@ -146,4 +148,29 @@ def search(request):
                        Blog.objects
                            .filter(content_name__icontains=title, content_tags__contains=tag)
                            .order_by('-publish_date')]
-    return render(request, 'blog-index.html', context)
+    return render(request, 'blog-indices.html', context)
+
+
+@login_required()
+@user_passes_test(lambda u: u.is_superuser)
+def publish(request):
+    if request.method == 'GET':
+        # The breadcrumb part needs extra handling, similar to indices.
+        context = get_universal_context('')
+        context['path'] = [('#', '发布')]
+
+        # Try to get an existing blog from the database.
+        context['publish_path'] = unquote(request.GET.get('path', ''))
+        try:
+            context.update(model_to_dict(Blog.objects.get(publish_path=context['publish_path'])))
+        except Blog.DoesNotExist:
+            pass
+        return render(request, 'blog-publish.html', context)
+
+    if request.method == 'POST':
+        blog, _ = Blog.objects.get_or_create(publish_path=request.POST.get('publish_path'))
+        for field in Blog._meta.fields:
+            if field.name != 'id' and field.name != 'publish_path':
+                blog.__setattr__(field.name, request.POST.get(field.name, ''))
+        blog.save()
+        return redirect('/blog/' + blog.publish_path)  # TODO reverse won't work, don't know why

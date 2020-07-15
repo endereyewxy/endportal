@@ -18,6 +18,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="github-markdown" level="application" />
     <orderEntry type="library" name="all" level="application" />
+    <orderEntry type="library" name="autosize" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

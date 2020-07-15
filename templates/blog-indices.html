@@ -22,7 +22,7 @@
                     </div>
                     <p>{{ blog.content_desc }}</p>
                     <div class="text-muted text-right">
-                        <span>{{ blog.publish_date }}&nbsp;&nbsp;&nbsp;&nbsp;{{ blog.publish_desc }}</span>
+                        <span>{{ blog.publish_date | date:"Y-m-d" }}&nbsp;&nbsp;&nbsp;&nbsp;{{ blog.publish_desc }}</span>
                     </div>
                 </div>
             </a>

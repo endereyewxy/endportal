@@ -1,0 +1,70 @@
+{% extends 'blog.html' %}
+{% block external_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
+            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
+            crossorigin="anonymous"></script>
+{% endblock %}
+{% block meta %}
+    <div class="card shadow mb-3">
+        <div class="card-body">
+            <div class="markdown-body mb-3"><h2>编辑</h2></div>
+            <form id="publish-form" action="{% url 'blog-publish' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="publish-publish-path">路径</label>
+                    <input id="publish-publish-path" type="text" name="publish_path" class="form-control" required
+                           value="{{ publish_path }}">
+                </div>
+                <div class="form-group">
+                    <label for="publish-content-name">标题</label>
+                    <input id="publish-content-name" type="text" name="content_name" class="form-control" required
+                           value="{{ content_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="publish-content-type">类型</label>
+                    <input id="publish-content-type" type="text" name="content_type" class="form-control" required
+                           value="{{ content_type }}">
+                </div>
+                <div class="form-group">
+                    <label for="publish-content-tags">标签</label>
+                    <input id="publish-content-tags" type="text" name="content_tags" class="form-control" required
+                           value="{{ content_tags }}">
+                </div>
+                <div class="form-group">
+                    <label for="publish-publish-date">发布日期</label>
+                    <input id="publish-publish-date" type="date" name="publish_date" class="form-control" required
+                           value="{{ publish_date | date:"Y-m-d" }}">
+                </div>
+                <div class="form-group">
+                    <label for="publish-publish-desc">发布描述</label>
+                    <input id="publish-publish-desc" type="text" name="publish_desc" class="form-control" required
+                           value="{{ publish_desc }}">
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary">发布</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="card-body">
+        <div class="markdown-body mb-3"><h2>编辑</h2></div>
+        <div class="form-group">
+            <label for="publish-content-desc">描述</label>
+            <textarea id="publish-content-desc" type="text" name="content_desc" form="publish-form" required
+                      class="form-control">{{ content_desc }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="publish-content-urls">链接</label>
+            <textarea id="publish-content-urls" type="text" name="content_urls" form="publish-form" required
+                      class="form-control">{{ content_urls }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="publish-content-text">正文</label>
+            <textarea id="publish-content-text" type="text" name="content_text" form="publish-form" required
+                      class="form-control">{{ content_text }}</textarea>
+        </div>
+    </div>
+    <script>$(document).ready(() => autosize($('textarea')));</script>
+{% endblock %}
