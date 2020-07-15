@@ -89,11 +89,12 @@
                 <li class="nav-item"><a class="nav-link" href="/blog/{{ category }}">{{ category }}</a></li>
             {% endfor %}
         </ul>
-        <form class="form-inline my-2 my-lg-0" action="">
+        <form class="form-inline my-2 my-lg-0" action="/blog/search/" method="get">
             <div class="input-group mr-sm-2">
-                <input type="text" class="form-control" placeholder="搜索" aria-label="搜索">
+                <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
+                       aria-label="搜索">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <button type="submit" class="btn btn-outline-success"><i class="fas fa-search"></i></button>
                 </div>
             </div>
         </form>
@@ -125,7 +126,7 @@
                         <div class="markdown-body"><h2>{{ content_name }}</h2></div>
                         <div class="mb-3">
                             {% for tag in content_tags %}
-                                <a href="#" class="badge badge-secondary">{{ tag }}</a> {# TODO add href to tags #}
+                                <a href="/blog/search/?tag={{ tag }}" class="badge badge-secondary">{{ tag }}</a>
                             {% endfor %}
                         </div>
                         <p>{{ content_desc }}</p>
@@ -168,7 +169,7 @@
                     <div class="markdown-body mb-3"><h2>最近</h2></div>
                     <ul>
                         {% for title, date, href in rect %}
-                            <li>
+                            <li class="mb-3">
                                 <a href="/blog/{{ href }}">{{ title }}</a>
                                 <div class="text-muted text-right"><span>{{ date }}</span></div>
                             </li>
@@ -181,7 +182,7 @@
                     <div class="markdown-body mb-3"><h2>标签</h2></div>
                     <h4>
                         {% for tag in tags %}
-                            <a href="#" class="badge badge-secondary">{{ tag }}</a> {# TODO add href to tags #}
+                            <a href="/blog/search/?tag={{ tag }}" class="badge badge-secondary">{{ tag }}</a>
                         {% endfor %}
                     </h4>
                 </div>
