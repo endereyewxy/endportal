@@ -1,12 +1,15 @@
+import os
 import re
 from urllib.parse import unquote
 
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import model_to_dict
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.text import slugify
-from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
 from markdown import Markdown
 
 from blog.models import Blog
@@ -89,10 +92,8 @@ def content(request, path):
         context['blog'] = [get_index_context(blog) for blog in query_set]
         return render(request, 'blog-indices.html', context)
 
-    # Process url links
+    # Process url links and tags
     context['content_urls'] = [tuple(tag.split(';')) for tag in context['content_urls'].split(',')]
-
-    # Process tags
     context['content_tags'] = context['content_tags'].split(',')
 
     # Process content text according to its type
@@ -131,12 +132,30 @@ def content(request, path):
                         (None,
                          [(context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end])]))
         context['content_toc'] = toc
+        return render(request, 'blog-content.html', context)
 
-    return render(request, 'blog-content.html', context)
+    # TODO add return statement when content type is not recognizable
+
+
+@login_required()
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+@csrf_exempt
+def add_img(request):
+    # Validate the images first, if any of them is invalid, the whole batch will not be saved.
+    for image in request.FILES.getlist('file_data'):
+        if image.size > 10485760:  # 10M
+            return JsonResponse({'error': '图片' + image.name + '体积过大'})
+    for image in request.FILES.getlist('file_data'):
+        with open(os.path.join(settings.STATIC_ROOT, 'static/images', image.name), 'wb') as f:
+            for chunk in image.chunks():
+                f.write(chunk)
+    return JsonResponse({})
 
 
 @require_GET
 def indices(request):
+    # Unquote possible Chinese characters.
     title, tag = unquote(request.GET.get('title', '')), unquote(request.GET.get('tag', ''))
 
     # The breadcrumb part needs extra handling.
@@ -159,18 +178,27 @@ def publish(request):
         context = get_universal_context('')
         context['path'] = [('#', '发布')]
 
+        # Add field 'stit' so that the edit option will not appear in the top-right menu again.
+        context['stit'] = ''
+
         # Try to get an existing blog from the database.
         context['publish_path'] = unquote(request.GET.get('path', ''))
         try:
             context.update(model_to_dict(Blog.objects.get(publish_path=context['publish_path'])))
         except Blog.DoesNotExist:
-            pass
+            # Set a default name to get rid of the ugly title
+            context['content_name'] = '新增博文'
         return render(request, 'blog-publish.html', context)
 
     if request.method == 'POST':
-        blog, _ = Blog.objects.get_or_create(publish_path=request.POST.get('publish_path'))
+        blog, _ = Blog.objects.get_or_create(publish_path=request.POST.get('publish_path'),
+                                             # This is required because django refuses to create a new blog object with
+                                             # empty publish date.
+                                             defaults={'publish_date': request.POST.get('publish_date')})
+        # Iterate through all fields and update them. It is guaranteed that the POST parameters' name is the same as
+        # database columns.
         for field in Blog._meta.fields:
-            if field.name != 'id' and field.name != 'publish_path':
+            if field.name != 'id':
                 blog.__setattr__(field.name, request.POST.get(field.name, ''))
         blog.save()
         return redirect('/blog/' + blog.publish_path)  # TODO reverse won't work, don't know why

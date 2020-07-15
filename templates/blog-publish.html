@@ -1,7 +1,13 @@
 {% extends 'blog.html' %}
 {% block external_scripts %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.1.1/css/fileinput.min.css"
+          integrity="sha512-GfiuxDoAwe470pDVm1TqVyXYgOJc2uMuEzqx3j3n5KFdUv35z4WJssXJj+87mffXCGjOpo5/93r1yfaUD0Oi8g=="
+          crossorigin="anonymous"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
             integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.1.1/js/fileinput.min.js"
+            integrity="sha512-Z9t682I7H/fW/wjZsZHgHc0vvu4O17zNvF/b0E7KRNxqt6lYDsjV2AwMkcuYs5PPttcfoAWC0jwok7qPmwXPgw=="
             crossorigin="anonymous"></script>
 {% endblock %}
 {% block meta %}
@@ -59,6 +65,15 @@
             <label for="publish-content-urls">链接</label>
             <textarea id="publish-content-urls" type="text" name="content_urls" form="publish-form" required
                       class="form-control">{{ content_urls }}</textarea>
+        </div>
+        <div class="form-group">
+            <input id="input-id" type="file" class="file" form="" multiple
+                   data-show-close="false" data-preview-file-type="image" data-show-caption="true"
+                   data-allowed-file-extensions='["png", "jpg", "jpeg", "gif", "svg"]'
+                   data-upload-url="{% url 'blog-add-img' %}"
+                   data-remove-icon='<i class="fas fa-trash-alt"></i>' data-remove-label=""
+                   data-upload-icon='<i class="fas fa-upload"></i>' data-upload-label=""
+                   data-browse-icon='<i class="fas fa-folder-open"></i>' data-browse-label="">
         </div>
         <div class="form-group">
             <label for="publish-content-text">正文</label>

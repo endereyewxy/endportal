@@ -29,6 +29,7 @@
         .markdown-body img {
             display: block;
             margin: auto;
+            border-radius: 10px;
         }
 
         .dropdown-toggle::after {
@@ -51,12 +52,12 @@
             padding-left: 1rem;
         }
 
-        .sidebar li a, .breadcrumb-item a {
+        .card > a, .card li > a, .breadcrumb-item a {
             text-decoration: none;
             color: black;
         }
 
-        .sidebar li a:hover, .breadcrumb-item a:hover {
+        .card > a:hover, .card li > a:hover, .breadcrumb-item a:hover {
             text-decoration: none;
             color: darkgray;
         }
@@ -78,7 +79,7 @@
             content: '\f0da';
         }
 
-        .container-fluid .row:first-child {
+        .container-fluid > .row:first-child {
             margin-top: 4.5rem;
         }
 
@@ -87,8 +88,9 @@
 </head>
 <body>
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
-    <a class="navbar-brand" href="{% url 'blog-content' path='' %}"><img src="{% static 'images/home.png' %}"
-                                                                         alt="Home"></a>
+    <a class="navbar-brand" href="{% url 'blog-content' path='' %}">
+        <img src="{% static 'images/home.png' %}" alt="Home">
+    </a>
     <div class="collapse navbar-collapse">
         <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
             <div class="input-group mr-sm-2">
