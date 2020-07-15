@@ -47,6 +47,15 @@ def get_cover_image(blog):
 
 @require_GET
 def display(request, path):
+    # In all circumstances, category list, tags and recent articles will be used.
+    categories, tags = set(), set()
+    for obj in Blog.objects.all().only('publish_path', 'content_tags'):
+        categories.add(obj.publish_path.split('/')[0])
+        for tag in obj.content_tags.split(','):
+            tags.add(tag)
+    recent = [(obj.content_name, obj.publish_date, obj.publish_path) for obj in
+              Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')[:5]]
+
     path = unquote('/'.join(path[:-1].split('/')))
     try:
         blog = model_to_dict(Blog.objects.get(publish_path=path))
@@ -57,6 +66,9 @@ def display(request, path):
         if len(query_set) == 0:
             raise Http404()
         blog = {
+            'cate': categories,
+            'tags': tags,
+            'rect': recent,
             # The index page still requires path variable.
             'path': process_path(path),
             # Some fields are not required.
@@ -72,7 +84,10 @@ def display(request, path):
         }
         return render(request, 'blog-index.html', blog)
 
-    # Process breadcrumb
+    # Add category list, tags, recent articles and breadcrumb info
+    blog['cate'] = categories
+    blog['tags'] = tags
+    blog['rect'] = recent
     blog['path'] = process_path(path)
 
     # Process url links
