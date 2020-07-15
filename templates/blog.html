@@ -30,6 +30,10 @@
             margin: auto;
         }
 
+        .dropdown-toggle::after {
+            content: none;
+        }
+
         .navbar, .navbar img {
             height: 3.5rem;
         }
@@ -84,20 +88,37 @@
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
     <a class="navbar-brand" href="/blog/"><img src="{% static 'images/home.png' %}" alt="Home"></a>
     <div class="collapse navbar-collapse">
+        <form class="form-inline" action="/blog/search/" method="get">
+            <div class="input-group mr-sm-2">
+                <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
+                       aria-label="搜索">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-info"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </form>
         <ul class="navbar-nav mr-auto">
             {% for category in cate %}
                 <li class="nav-item"><a class="nav-link" href="/blog/{{ category }}">{{ category }}</a></li>
             {% endfor %}
         </ul>
-        <form class="form-inline my-2 my-lg-0" action="/blog/search/" method="get">
-            <div class="input-group mr-sm-2">
-                <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
-                       aria-label="搜索">
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-success"><i class="fas fa-search"></i></button>
+        {% if request.user.is_authenticated %}
+            <div class="dropdown">
+                <button class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">
+                    {{ request.user.username }} &laquo;{{ request.user.email }}&raquo;
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"><i class="fas fa-plus">&nbsp;添加</i></a>
+                    <a class="dropdown-item" href="#"><i class="fas fa-pen">&nbsp;编辑</i></a>
+                    <a class="dropdown-item" href="javascript:" onclick="logout()">
+                        <i class="fas fa-sign-out-alt">&nbsp;登出</i>
+                    </a>
                 </div>
             </div>
-        </form>
+        {% else %}
+            <button class="btn btn-outline-info" data-toggle="modal" data-target="#login-modal">登录</button>
+        {% endif %}
     </div>
 </nav>
 <div class="container-fluid">
@@ -163,6 +184,7 @@
                         </ul>
                     </div>
                 </div>
+                {# TODO add sub-article feature #}
             {% endblock %}
             <div class="card shadow mb-3">
                 <div class="card-body">
@@ -203,5 +225,6 @@
         </div>
     </div>
 </div>
+{% include 'component-login-logout.html' %}
 </body>
 </html>
