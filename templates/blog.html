@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ content_name }}</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.13.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .markdown-body table {
+            display: table;
+        }
+
+        .navbar, .navbar img {
+            height: 3.5rem;
+        }
+
+        .card {
+            border-radius: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar .card-body > ul {
+            padding-left: 1rem;
+        }
+
+        .sidebar li a, .breadcrumb-item a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .sidebar li a:hover, .breadcrumb-item a:hover {
+            text-decoration: none;
+            color: darkgray;
+        }
+
+        .sidebar li::before, .breadcrumb-item + .breadcrumb-item::before {
+            font-family: "Font Awesome 5 Free", monospace;
+            font-weight: 900;
+        }
+
+        .sidebar li::before {
+            margin-right: 0.5rem;
+        }
+
+        .sidebar .card-body > ul > li::before, .breadcrumb-item + .breadcrumb-item::before {
+            content: '\f105';
+        }
+
+        .sidebar .card-body > ul > ul > li::before {
+            content: '\f0da';
+        }
+
+        .container-fluid .row:first-child {
+            margin-top: 4.5rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar fixed-top navbar-expand-lg bg-light shadow">
+    <a class="navbar-brand" href="/blog/"><img src="{% static 'home.png' %}" alt="Home"></a>
+    <div class="collapse navbar-collapse">
+        <div class="nav navbar-nav mr-auto"></div>
+        <form class="form-inline my-2 my-lg-0" action="">
+            <div class="input-group mr-sm-2">
+                <input type="text" class="form-control" placeholder="搜索" aria-label="搜索">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <ul class="breadcrumb shadow">
+                <li class="breadcrumb-item">当前位置</li>
+                {% for href, name in path %}
+                    {% if forloop.last %}
+                        <li class="breadcrumb-item active">{{ name }}</li>
+                    {% else %}
+                        <li class="breadcrumb-item"><a href="{{ href }}">{{ name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-1"></div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-1"></div>
+        <div class="col-2 sidebar">
+            {% block sidebar %}
+                <div class="card shadow mb-3">
+                    <div class="card-body">
+                        <div class="markdown-body">
+                            <h2>{{ content_name }}</h2>
+                        </div>
+                        <div class="mb-3">
+                            {% for tag in content_tags %}
+                                <a href="#" class="badge badge-secondary">{{ tag }}</a> {# TODO add href to tags #}
+                            {% endfor %}
+                        </div>
+                        <p>{{ content_desc }}</p>
+                        <div class="text-muted text-right">
+                            <span>{{ publish_date }}&nbsp;&nbsp;&nbsp;&nbsp;{{ publish_desc }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow mb-3">
+                    <div class="card-body">
+                        <div class="markdown-body mb-3">
+                            <h2>文章目录</h2>
+                        </div>
+                        <ul>
+                            {% for name, href in content_toc %}
+                                {% if name is None %}
+                                    <ul>
+                                        {% for name, href in href %}
+                                            <li><a href="#{{ href }}">{{ name }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <li><a href="#{{ href }}">{{ name }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card shadow mb-3">
+                    <div class="card-body markdown-body">
+                        <div class="markdown-body mb-3">
+                            <h2>相关连接</h2>
+                        </div>
+                        <ul>
+                            {% for title, href in content_urls %}
+                                <li><a href="{{ href }}">{{ title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+        <div class="col-8">
+            <div class="card shadow">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="col-1"></div>
+    </div>
+    <div class="row mb-5">
+        <hr style="width: 85%"/>
+        <p class="text-center w-100 text-muted">
+            {# TODO add footer here #}
+        </p>
+    </div>
+</div>
+</body>
+</html>
