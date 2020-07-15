@@ -1,7 +1,9 @@
+import re
 from urllib.parse import unquote
 
 from django.forms import model_to_dict
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+from django.shortcuts import render
 from django.utils.text import slugify
 from django.views.decorators.http import require_GET
 from markdown import Markdown
@@ -11,17 +13,67 @@ from blog.models import Blog
 markdown = Markdown(extensions=['markdown.extensions.extra', 'markdown.extensions.toc'], slugify=slugify)
 
 
-@require_GET
-def display(request, _):
-    # Get path and identify which blog to display
-    path = unquote('/'.join(request.get_full_path().split('/')[2:-1]))
-    blog = model_to_dict(get_object_or_404(Blog, publish_path=path))
-
-    # Process breadcrumb
+def process_path(path):
+    """
+    Parse a path string separated by slashes into a list consisting of link href and title. Used to generate information
+    required by breadcrumb.
+    :param path: The path string.
+    :return: A list of tuples which have two elements: link href location and its title,
+    :rtype: list
+    """
     href, path = '/blog/', path.split('/')
     for i in range(len(path)):
         href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
-    blog['path'] = path
+    return path
+
+
+def get_cover_image(blog):
+    """
+    Get a cover image from a blog object.
+    :param blog: Blog object.
+    :return: The url (not including static path) of the cover image.
+    :rtype: str
+    """
+    # Simply select the first image throughout the content
+    if blog.content_type == 'markdown':
+        result = re.search(r'!\[\w*\]\(([-/\w]+\.(png|jpg|jpeg|gif|svg))\)', blog.content_text)
+        if result is not None:
+            return result.group(1)
+
+    # In case of there are no images in the content (or that the content type is unrecognizable), we use the category
+    # image as the cover.
+    return '/static/images/' + blog.publish_path.split('/')[0] + '.jpg'
+
+
+@require_GET
+def display(request, path):
+    path = unquote('/'.join(path[:-1].split('/')))
+    try:
+        blog = model_to_dict(Blog.objects.get(publish_path=path))
+    except Blog.DoesNotExist:
+        # If the blog specified by this path does not exists, then check if there are any blogs under this directory. If
+        # yes, display an index page. Otherwise, return 404.
+        query_set = Blog.objects.filter(publish_path__startswith=path)
+        if len(query_set) == 0:
+            raise Http404()
+        blog = {
+            # The index page still requires path variable.
+            'path': process_path(path),
+            # Some fields are not required.
+            'blog': [{
+                'publish_path': obj.publish_path,
+                'publish_date': obj.publish_date,
+                'publish_desc': obj.publish_desc,
+                'content_cimg': get_cover_image(obj),
+                'content_name': obj.content_name,
+                'content_desc': obj.content_desc,
+                'content_tags': obj.content_tags.split(',')
+            } for obj in query_set]
+        }
+        return render(request, 'blog-index.html', blog)
+
+    # Process breadcrumb
+    blog['path'] = process_path(path)
 
     # Process url links
     blog['content_urls'] = [tuple(tag.split(';')) for tag in blog['content_urls'].split(',')]

@@ -1,0 +1,31 @@
+{% extends 'blog.html' %}
+{% block external_styles %}
+    .card-img-top {
+        background-repeat: no-repeat;
+        background-size: 100%, auto;
+        height: 350px
+    }
+{% endblock %}
+{% block title %}{{ path | last | last }}{% endblock %}
+{% block meta %}{% endblock %}
+{% block content %}
+    <div class="list-group">
+        {% for blog in blog %}
+            <a href="/blog/{{ blog.publish_path }}" class="card list-group-item list-group-item-action">
+                <div class="card-img-top" style='background-image: url("{{ blog.content_cimg }}")'></div>
+                <div class="card-body">
+                    <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
+                    <div class="mb-3">
+                        {% for tag in blog.content_tags %}
+                            <div class="badge badge-secondary">{{ tag }}</div>
+                        {% endfor %}
+                    </div>
+                    <p>{{ blog.content_desc }}</p>
+                    <div class="text-muted text-right">
+                        <span>{{ blog.publish_date }}&nbsp;&nbsp;&nbsp;&nbsp;{{ blog.publish_desc }}</span>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
