@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Django settings
+# Django and IDEA settings
+.idea
 endportal/settings.py

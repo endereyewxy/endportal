@@ -1,15 +1,17 @@
 {% extends 'blog.html' %}
 {% block external_styles %}
+    {# Styles for cover image. Ensure maximum width and fixed ratio. #}
     .card-img {
         background-position: center center;
         background-repeat: no-repeat;
         background-size: 100%, auto
     }
 {% endblock %}
-{% block title %}{{ path | last | last }}{% endblock %}
-{% block meta %}{% endblock %}
+{# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}
+{% block title %}{% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}{% endblock %}
+{% block meta %}{% endblock %},
 {% block content %}
-    <div class="list-group">
+    <div class="list-group mb-3">
         {% for blog in blog %}
             <div class="card list-group-item list-group-item-action">
                 <a href="/blog/{{ blog.publish_path }}" class="row no-gutters stretched-link">
@@ -32,4 +34,43 @@
             </div>
         {% endfor %}
     </div>
+    <nav style="margin: auto">
+        <ul class="pagination">
+            {% ifequal page 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link"><span aria-hidden="true">&laquo;</span></span>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ rurl }}page={{ page | add:"-1" }}">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endifequal %}
+            {% with range='.'|center:pcnt %}
+                {% for _ in range %}
+                    {% ifequal forloop.counter page %}
+                        <li class="page-item active"><span class="page-link">{{ forloop.counter }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ rurl }}page={{ forloop.counter }}">
+                                {{ forloop.counter }}
+                            </a>
+                        </li>
+                    {% endifequal %}
+                {% endfor %}
+            {% endwith %}
+            {% ifequal page pcnt %}
+                <li class="page-item disabled">
+                    <span class="page-link"><span aria-hidden="true">&raquo;</span></span>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ rurl }}page={{ page | add:"1" }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endifequal %}
+        </ul>
+    </nav>
 {% endblock %}

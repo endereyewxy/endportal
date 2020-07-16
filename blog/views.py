@@ -25,16 +25,24 @@ def get_universal_context(path):
     :return A default context.
     :rtype dict
     """
+    # collect categories (the first directory of publish path) and tags.
     categories, tags = set(), set()
     for blog in Blog.objects.all().only('publish_path', 'content_tags'):
         categories.add(blog.publish_path.split('/')[0])
         for tag in blog.content_tags.split(','):
             tags.add(tag)
-    recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in
-              Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')[:5]]
-    href, path = '', path.split('/')
-    for i in range(len(path)):
-        href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
+
+    # Collect 5 recent articles.
+    query_set = Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')
+    query_set = query_set[:min(5, len(query_set))]
+    recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in query_set]
+
+    # Parse requested path. If the path is empty, return an empty string instead.
+    if len(path) > 0:
+        href, path = '', path.split('/')
+        for i in range(len(path)):
+            href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
+
     return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path}
 
 
@@ -74,6 +82,22 @@ def get_index_context(blog):
     }
 
 
+def put_page_info(request, query_set, context):
+    """
+    Put pagination info into the context.
+    :param request: Request object.
+    :param query_set: Result to be paged.
+    :param context: Context to be updated.
+    """
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        raise Http404()  # Bad request if the parameter is not an integer
+    context['page'] = page
+    context['pcnt'] = (len(query_set) + 4) // 5
+    context['blog'] = [get_index_context(blog) for blog in query_set[(page - 1) * 5:page * 5]]
+
+
 # noinspection PyTypeChecker
 @require_GET
 def content(request, path):
@@ -86,10 +110,15 @@ def content(request, path):
         # If the blog specified by this path does not exists, then check if there are any blogs under this directory. If
         # yes, display an index page. Otherwise, return 404.
         query_set = Blog.objects.filter(publish_path__startswith=path)
-        if len(query_set) == 0:
+        # Note that empty path (i.e. root) will never raise 404, otherwise there will be no entrance if no blogs online.
+        if len(query_set) == 0 and path != '':
             raise Http404()
-            # Some fields are not required.
-        context['blog'] = [get_index_context(blog) for blog in query_set]
+        put_page_info(request, query_set, context)
+
+        # Because the template can not distinguish between normal index pages and search pages, we have to provide the
+        # url for page navigation.
+        context['rurl'] = request.path + '?'
+
         return render(request, 'blog-indices.html', context)
 
     # Process url links and tags
@@ -118,6 +147,7 @@ def content(request, path):
                 # should be jumped over.
                 name_end = href_end + context['content_text'][href_end:].index('</h2>')
                 toc.append((context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end]))
+
             if context['content_text'][i:i + 3] == '<h3':
                 # The logic here is similar to <h2>.
                 href_end = i + 8 + context['content_text'][i + 8:].index('"')
@@ -132,6 +162,7 @@ def content(request, path):
                         (None,
                          [(context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end])]))
         context['content_toc'] = toc
+
         return render(request, 'blog-content.html', context)
 
     # TODO add return statement when content type is not recognizable
@@ -146,8 +177,9 @@ def add_img(request):
     for image in request.FILES.getlist('file_data'):
         if image.size > 10485760:  # 10M
             return JsonResponse({'error': '图片' + image.name + '体积过大'})
+
     for image in request.FILES.getlist('file_data'):
-        with open(os.path.join(settings.STATIC_ROOT, 'static/images', image.name), 'wb') as f:
+        with open(os.path.join(settings.STATIC_ROOT, 'images', image.name), 'wb') as f:
             for chunk in image.chunks():
                 f.write(chunk)
     return JsonResponse({})
@@ -162,11 +194,17 @@ def indices(request):
     context = get_universal_context('')
     context['path'] = [('#', '搜索')]
 
+    query_set = Blog.objects.filter(content_name__icontains=title, content_tags__contains=tag).order_by('-publish_date')
+    put_page_info(request, query_set, context)
+
+    # These two parameters are used to fill out the default value of the search bar.
     context['stit'] = title
-    context['blog'] = [get_index_context(blog) for blog in
-                       Blog.objects
-                           .filter(content_name__icontains=title, content_tags__contains=tag)
-                           .order_by('-publish_date')]
+    context['stag'] = tag
+
+    # Because the template can not distinguish between normal index pages and search pages, we have to provide the url
+    # for page navigation.
+    context['rurl'] = f'{request.path}?title={title}&tag={tag}&'
+
     return render(request, 'blog-indices.html', context)
 
 
