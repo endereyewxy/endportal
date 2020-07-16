@@ -1,5 +1,4 @@
 import os
-import re
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -52,24 +51,6 @@ def get_universal_context(path):
     return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path}
 
 
-def get_cover_image(blog):
-    """
-    Get a cover image from a blog object.
-    :param blog: Blog object.
-    :return: The url (not including static path) of the cover image.
-    :rtype: str
-    """
-    # Simply select the first image throughout the content which has the correct alt text.
-    if blog.content_type == 'markdown':
-        result = re.search(r'!\[cover]\(([-/\w]+\.(png|jpg|jpeg|gif|svg))\)', blog.content_text)
-        if result is not None:
-            return result.group(1)
-
-    # In case of there are no images in the content (or that the content type is unrecognizable), we use the category
-    # image as the cover.
-    return os.path.join(settings.STATIC_URL, 'images', blog.publish_path.split('/')[0] + '.png')
-
-
 def get_index_context(blog):
     """
     Get the dictionary form of a blog object to be displayed on an index page.
@@ -81,7 +62,6 @@ def get_index_context(blog):
         'publish_path': blog.publish_path,
         'publish_date': blog.publish_date,
         'publish_desc': blog.publish_desc,
-        'content_cimg': get_cover_image(blog),
         'content_name': blog.content_name,
         'content_desc': blog.content_desc,
         'content_tags': blog.content_tags.split(',')
