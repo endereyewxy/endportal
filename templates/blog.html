@@ -28,22 +28,9 @@
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"
             integrity="sha512-GicGrbLBXJh2kbF+DYD+sCW5hPavoOfVAKSOE7+qgYCgVTcwe+/D4LXegS9JVTY72ovc5Ung4Fml+i1uD3uOyQ=="
-            crossorigin="anonymous"
-            onload="renderMathInElement(document.body);"></script>
+            crossorigin="anonymous"></script>
     {% block external_scripts %}{% endblock %}
     <style>
-        {# Make the table width 100%. #}
-        .markdown-body table {
-            display: table;
-        }
-
-        {# Center images, add rounded corners to make them less sharp. #}
-        .markdown-body img {
-            display: block;
-            margin: auto;
-            border-radius: 10px;
-        }
-
         {# Remove triangle aside of dropdowns. #}
         .dropdown-toggle::after {
             content: none;
@@ -101,7 +88,7 @@
             color: darkgray;
         }
 
-        {% block external_styles %}{% endblock %}
+        {% block external-styles %}{% endblock %}
     </style>
 </head>
 <body>
@@ -142,7 +129,7 @@
                         <a class="dropdown-item" href="{% url 'blog-publish' %}"><i class="fas fa-plus">&nbsp;添加</i></a>
                         {% if stit is None %}
                             <a class="dropdown-item"
-                               href="{% url 'blog-publish' %}?path={{ path | last | first | slice:":-1" }}">
+                               href="{% url 'blog-publish' %}?id={{ id }}">
                                 <i class="fas fa-pen">&nbsp;编辑</i>
                             </a>
                         {% endif %}
@@ -264,6 +251,7 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">$(document).ready(() => renderMathInElement(document.body))</script>
 {% include 'component-login-logout.html' %}
 </body>
 </html>

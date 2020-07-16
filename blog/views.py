@@ -59,9 +59,9 @@ def get_cover_image(blog):
     :return: The url (not including static path) of the cover image.
     :rtype: str
     """
-    # Simply select the first image throughout the content
+    # Simply select the first image throughout the content which has the correct alt text.
     if blog.content_type == 'markdown':
-        result = re.search(r'!\[\w*\]\(([-/\w]+\.(png|jpg|jpeg|gif|svg))\)', blog.content_text)
+        result = re.search(r'!\[cover]\(([-/\w]+\.(png|jpg|jpeg|gif|svg))\)', blog.content_text)
         if result is not None:
             return result.group(1)
 
@@ -225,20 +225,26 @@ def publish(request):
         # Add field 'stit' so that the edit option will not appear in the top-right menu again.
         context['stit'] = ''
 
-        # Try to get an existing blog from the database.
-        context['publish_path'] = unquote(request.GET.get('path', ''))
-        try:
-            context.update(model_to_dict(Blog.objects.get(publish_path=context['publish_path'])))
-        except Blog.DoesNotExist:
+        # Get an existing blog from database, if an id is given. Otherwise, this is creation, do nothing.
+        if 'id' in request.GET:
+            try:
+                context.update(model_to_dict(Blog.objects.get(id=int(request.GET.get('id')))))
+            except Blog.DoesNotExist or ValueError:
+                raise Http404()
+        else:
             # Set a default name to get rid of the ugly title
-            context['content_name'] = '新增博文'
+            context['content_name'] = '新增'
         return render(request, 'blog-publish.html', context)
 
     if request.method == 'POST':
-        blog, _ = Blog.objects.get_or_create(publish_path=request.POST.get('publish_path'),
-                                             # This is required because django refuses to create a new blog object with
-                                             # empty publish date.
-                                             defaults={'publish_date': request.POST.get('publish_date')})
+        if 'id' in request.POST:
+            try:
+                blog = Blog.objects.get(id=int(request.POST.get('id')))
+            except Blog.DoesNotExist or ValueError:
+                raise Http404()
+        else:
+            # This is required because django refuses to create a new blog object with empty publish date.
+            blog = Blog.objects.create(publish_date=request.POST.get('publish_date'))
         # Iterate through all fields and update them. It is guaranteed that the POST parameters' name is the same as
         # database columns.
         for field in Blog._meta.fields:

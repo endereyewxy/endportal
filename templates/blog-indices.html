@@ -1,10 +1,10 @@
 {% extends 'blog.html' %}
-{% block external_styles %}
-    {# Styles for cover image. Ensure maximum width and fixed ratio. #}
+{% block external-styles %}
+    {# Styles for cover image. Ensure fitness. #}
     .card-img {
         background-position: center center;
         background-repeat: no-repeat;
-        background-size: 100%, auto
+        background-size: auto, 100%;
     }
 {% endblock %}
 {# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}

@@ -16,6 +16,10 @@
             <div class="markdown-body mb-3"><h2>编辑</h2></div>
             <form id="publish-form" action="{% url 'blog-publish' %}" method="post">
                 {% csrf_token %}
+                {% if 'id' is not None %}
+                    {# This is modification, not creation, id should be passed over. #}
+                    <input type="hidden" name="id" value="{{ id }}">
+                {% endif %}
                 <div class="form-group">
                     <label for="publish-publish-path">路径</label>
                     <input id="publish-publish-path" type="text" name="publish_path" class="form-control" required
