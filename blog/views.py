@@ -128,7 +128,7 @@ def content(request, path):
         return render(request, 'blog-indices.html', context)
 
     # Process url links and tags
-    context['content_urls'] = [tuple(tag.split(';')) for tag in context['content_urls'].split(',')]
+    context['content_urls'] = [tuple(tag.strip().split(',')) for tag in context['content_urls'].split('\n')]
     context['content_tags'] = context['content_tags'].split(',')
 
     # Process content text according to its type
