@@ -67,7 +67,7 @@ def get_cover_image(blog):
 
     # In case of there are no images in the content (or that the content type is unrecognizable), we use the category
     # image as the cover.
-    return '/static/images/' + blog.publish_path.split('/')[0] + '.jpg'
+    return os.path.join(settings.STATIC_URL, 'images', blog.publish_path.split('/')[0] + '.png')
 
 
 def get_index_context(blog):
