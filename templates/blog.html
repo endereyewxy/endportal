@@ -127,7 +127,8 @@
                     {% if request.user.is_superuser %}
                         {# Only superusers have permissions to create and edit blogs. #}
                         <a class="dropdown-item" href="{% url 'blog-publish' %}"><i class="fas fa-plus">&nbsp;添加</i></a>
-                        {% if stit is None %}
+                        {% if id is not None %}
+                            {# Can only edit existing blogs. #}
                             <a class="dropdown-item"
                                href="{% url 'blog-publish' %}?id={{ id }}">
                                 <i class="fas fa-pen">&nbsp;编辑</i>

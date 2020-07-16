@@ -115,7 +115,7 @@ def content(request, path):
     except Blog.DoesNotExist:
         # If the blog specified by this path does not exists, then check if there are any blogs under this directory. If
         # yes, display an index page. Otherwise, return 404.
-        query_set = Blog.objects.filter(publish_path__startswith=path)
+        query_set = Blog.objects.filter(publish_path__startswith=path).order_by('-publish_date')
         # Note that empty path (i.e. root) will never raise 404, otherwise there will be no entrance if no blogs online.
         if len(query_set) == 0 and path != '':
             raise Http404()
@@ -128,7 +128,8 @@ def content(request, path):
         return render(request, 'blog-indices.html', context)
 
     # Process url links and tags
-    context['content_urls'] = [tuple(tag.strip().split(',')) for tag in context['content_urls'].split('\n')]
+    context['content_urls'] = [tuple(tag.strip().split(':::')) for tag in context['content_urls'].split('\n')]
+    print(context['content_urls'])
     context['content_tags'] = context['content_tags'].split(',')
 
     # Process content text according to its type
@@ -171,7 +172,7 @@ def content(request, path):
 
         return render(request, 'blog-content.html', context)
 
-    # TODO add return statement when content type is not recognizable
+    raise Http404()
 
 
 @login_required()
