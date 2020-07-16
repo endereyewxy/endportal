@@ -212,8 +212,21 @@
                         </ul>
                     </div>
                 </div>
-                {# TODO add sub-article feature #}
             {% endblock %}
+            {% if subd is not None %}
+                <div class="card shadow mb-3">
+                    <div class="card-body">
+                        <div class="markdown-body mb-3"><h2>下属目录</h2></div>
+                        <ul>
+                            {% for sub_path in subd %}
+                                <li class="mb-3">
+                                    <a href="{{ request.path }}/{{ sub_path }}">{{ sub_path }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
             <div class="card shadow mb-3">
                 <div class="card-body">
                     <div class="markdown-body mb-3"><h2>最近</h2></div>

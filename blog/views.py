@@ -22,11 +22,13 @@ markdown = Markdown(extensions=['markdown.extensions.extra', 'markdown.extension
                     slugify=slugify)
 
 
-def get_universal_context(path):
+def get_universal_context(path, sub_dir=True):
     """
-    Get category list, tags and recent articles which are used in any circumstances. Will also split and process path
-    string into a list consisting of link href and title, in order to generate information required by breadcrumb.
-    :param path: The path string
+    Get category list, tags, recent articles and subdirectories which are used in any circumstances. Will also split
+    and process path string into a list consisting of link href and title, in order to generate information required
+    by breadcrumb.
+    :param path: The path string.
+    :param sub_dir: If subdirectory enabled.
     :return A default context.
     :rtype dict
     """
@@ -42,13 +44,26 @@ def get_universal_context(path):
     query_set = query_set[:min(5, len(query_set))]
     recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in query_set]
 
+    # Get subdirectories.
+    subd = set()
+    if sub_dir and path != '':
+        for blog in Blog.objects.filter(publish_path__startswith=path):
+            if blog.publish_path == path:
+                continue
+            sub_path = blog.publish_path[len(path) + 1:].split('/')[0]
+            # Ignore articles
+            if path + '/' + sub_path != blog.publish_path:
+                subd.add(sub_path)
+    if len(subd) == 0:
+        subd = None
+
     # Parse requested path. If the path is empty, return an empty string instead.
     if len(path) > 0:
         href, path = '', path.split('/')
         for i in range(len(path)):
             href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
 
-    return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path}
+    return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path, 'subd': subd}
 
 
 def get_index_context(blog):
@@ -178,7 +193,7 @@ def indices(request):
     title, tag = unquote(request.GET.get('title', '')), unquote(request.GET.get('tag', ''))
 
     # The breadcrumb part needs extra handling.
-    context = get_universal_context('')
+    context = get_universal_context('', False)
     context['path'] = [('#', '搜索')]
 
     query_set = Blog.objects.filter(content_name__icontains=title, content_tags__contains=tag).order_by('-publish_date')
@@ -200,7 +215,7 @@ def indices(request):
 def publish(request):
     if request.method == 'GET':
         # The breadcrumb part needs extra handling, similar to indices.
-        context = get_universal_context('')
+        context = get_universal_context('', False)
         context['path'] = [('#', '发布')]
 
         # Add field 'stit' so that the edit option will not appear in the top-right menu again.
