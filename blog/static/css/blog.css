@@ -33,7 +33,7 @@
     margin-right: 0.5rem;
 }
 
-.sidebar .card-body > ul > li::before, .breadcrumb-item + .breadcrumb-item::before {
+.sidebar .card-body > ul > li::before {
     content: '\f105';
 }
 
