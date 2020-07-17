@@ -6,6 +6,11 @@ register = template.Library()
 
 @register.tag('sidecard')
 def do_side_card(parser, token):
+    """
+    Create a card which suits perfectly in the sidebar. Accept one and only one argument, which is the title of the
+    card.
+    This tag should be ended with `endsidecard`.
+    """
     try:
         _, title = token.split_contents()
     except ValueError:
@@ -17,6 +22,10 @@ def do_side_card(parser, token):
 
 @register.tag('tag')
 def do_tag(parser, token):
+    """
+    Crate a tag. Accept at most two arguments, the first one must be the tag text, and the second one (if presented)
+    must be `nolink` indicating that the tag is not displayed in an <a> but a <div>.
+    """
     bits = token.split_contents()
     if len(bits) != 2 and len(bits) != 3:
         raise template.TemplateSyntaxError("%r tag requires one or two arguments" % token.contents.split()[0])
@@ -27,6 +36,9 @@ def do_tag(parser, token):
 
 @register.tag('date')
 def do_date(parser, token):
+    """
+    Create a publish date text representation, along with publish description text.
+    """
     bits = token.split_contents()
     if len(bits) != 2 and len(bits) != 3:
         raise template.TemplateSyntaxError("%r tag requires one or two arguments" % token.contents.split()[0])

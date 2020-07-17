@@ -2,6 +2,7 @@
 {% load blog %}
 {# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}
 {% block title %}{% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}{% endblock %}
+{# Remove all meta side-cards. #}
 {% block meta %}{% endblock %}
 {% block content %}
     <div class="list-group list-group-flush mb-3">
@@ -10,9 +11,8 @@
                 <a href="/blog/{{ blog.publish_path }}" class="row no-gutters stretched-link">
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
-                        <div class="mb-3">
-                            {% for tag in blog.content_tags %}{% tag tag nolink %}{% endfor %}
-                        </div>
+                        {# The streched-link class will extend every <a> tag, so we are forces to use divs to show tags. #}
+                        <div class="mb-3">{% for tag in blog.content_tags %}{% tag tag nolink %}{% endfor %}</div>
                         <p>{{ blog.content_desc }}</p>
                         {% date blog.publish_date blog.publish_desc %}
                     </div>
@@ -22,7 +22,6 @@
     </div>
     <nav style="margin: auto">
         <ul class="pagination">
-            {# Disable the previous page button when it is first page. #}
             {% ifequal page 1 %}
                 <li class="page-item disabled">
                     <span class="page-link"><span aria-hidden="true">&laquo;</span></span>
@@ -34,6 +33,10 @@
                     </a>
                 </li>
             {% endifequal %}
+            {% comment %}
+            This with block creates a string with length equal to the number of pages, so we can use forloop.counter to
+            iterate over those numbers. This is equivalent to the for-range syntax in Python.
+            {% endcomment %}
             {% with range='.'|center:pcnt %}
                 {% for _ in range %}
                     {% ifequal forloop.counter page %}
@@ -48,7 +51,6 @@
                     {% endifequal %}
                 {% endfor %}
             {% endwith %}
-            {# Disable the next page button when it is last page. #}
             {% ifequal page pcnt %}
                 <li class="page-item disabled">
                     <span class="page-link"><span aria-hidden="true">&raquo;</span></span>

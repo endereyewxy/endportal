@@ -35,14 +35,11 @@
 </head>
 <body>
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
-    {# The icon to return to the home page #}
-    <a class="navbar-brand" href="{% url 'blog-content' path='' %}">
-        <img src="{% static 'home.png' %}" alt="Home">
-    </a>
+    <a class="navbar-brand" href="{% url 'blog-content' path='' %}"><img src="{% static 'home.png' %}" alt="Home"></a>
     <div class="collapse navbar-collapse">
-        {# The search bar. #}
         <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
             <div class="input-group mr-sm-2">
+                {# The last search text is automatically filled into the search bar. #}
                 <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
                        aria-label="搜索">
                 <div class="input-group-append">
@@ -59,11 +56,10 @@
             {% endfor %}
         </ul>
         {% if request.user.is_authenticated %}
-            {# We should put a user menu here. #}
             <div class="dropdown">
                 <button class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
-                    {{ request.user.username }} &laquo;{{ request.user.email }}&raquo;
+                    {{ request.user.username }}&nbsp;&laquo;{{ request.user.email }}&raquo;
                 </button>
                 <div class="dropdown-menu">
                     {% if request.user.is_superuser %}

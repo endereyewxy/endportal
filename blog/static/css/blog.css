@@ -1,7 +1,7 @@
 @import "code.css";
 
 .dropdown-toggle::after {
-    content: none;
+    content: none !important;
 }
 
 .navbar, .navbar img {

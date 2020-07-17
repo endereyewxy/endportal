@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.template.defaulttags import do_for
+
 
 class Blog(models.Model):
     publish_path = models.CharField(max_length=64)
