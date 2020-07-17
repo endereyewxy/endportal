@@ -13,13 +13,16 @@ from markdown import Markdown
 
 from blog.models import Blog
 
-markdown = Markdown(extensions=['markdown.extensions.extra', 'markdown.extensions.toc', 'arithmatex'],
-                    extension_configs={
-                        # Enable generic mode for katex, disable smart dollar because it breaks inline math.
-                        'arithmatex': {'generic': True, 'smart_dollar': False}
-                    },
-                    # They said that this can help to improve Chinese character issues.
-                    slugify=slugify)
+markdown = Markdown(
+    extensions=['markdown.extensions.extra', 'markdown.extensions.toc', 'markdown.extensions.codehilite', 'arithmatex'],
+    extension_configs={
+        # Enable line numbers.
+        'markdown.extensions.codehilite': {'linenums': True},
+        # Enable generic mode for katex, disable smart dollar because it breaks inline math.
+        'arithmatex': {'generic': True, 'smart_dollar': False}
+    },
+    # They said that this can help to improve Chinese character issues.
+    slugify=slugify)
 
 
 def get_universal_context(path, sub_dir=True):

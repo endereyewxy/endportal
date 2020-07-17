@@ -1,7 +1,7 @@
 {% extends 'blog.html' %}
 {# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}
 {% block title %}{% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}{% endblock %}
-{% block meta %}{% endblock %},
+{% block meta %}{% endblock %}
 {% block content %}
     <div class="list-group list-group-flush mb-3">
         {% for blog in blog %}

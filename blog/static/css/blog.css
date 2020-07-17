@@ -1,0 +1,76 @@
+@import "code.css";
+
+.dropdown-toggle::after {
+    content: none;
+}
+
+.navbar, .navbar img {
+    height: 3.5rem;
+}
+
+.container-fluid > .row:first-child {
+    margin-top: 4.5rem;
+}
+
+.card {
+    border-radius: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar .card-body > ul {
+    padding-left: 1rem;
+}
+
+.sidebar li::before, .breadcrumb-item + .breadcrumb-item::before {
+    font-family: "Font Awesome 5 Free", monospace;
+    font-weight: 900;
+}
+
+.sidebar li::before {
+    margin-right: 0.5rem;
+}
+
+.sidebar .card-body > ul > li::before, .breadcrumb-item + .breadcrumb-item::before {
+    content: '\f105';
+}
+
+.sidebar .card-body > ul > ul > li::before {
+    content: '\f0da';
+}
+
+.card > a, .card li > a, .breadcrumb-item a {
+    text-decoration: none;
+    color: black;
+}
+
+.card > a:hover, .card li > a:hover, .breadcrumb-item a:hover {
+    text-decoration: none;
+    color: darkgray;
+}
+
+.markdown-body table {
+    display: table !important;
+}
+
+.codehilitetable tr {
+    border: none !important;
+}
+
+.codehilitetable td {
+    border: none !important;
+    padding: 0 !important;
+}
+
+.linenos {
+    width: 3rem;
+}
+
+.markdown-body img {
+    border-radius: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    position: relative;
+}

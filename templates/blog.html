@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{{ content_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
           integrity="sha512-rO2SXEKBSICa/AfyhEK5ZqWFCOok1rcgPYfGOqtX35OyiraBg6Xa4NnBJwXgpIRoXeWjcAmcQniMhp22htDc6g=="
           crossorigin="anonymous"/>
@@ -30,66 +31,6 @@
             integrity="sha512-GicGrbLBXJh2kbF+DYD+sCW5hPavoOfVAKSOE7+qgYCgVTcwe+/D4LXegS9JVTY72ovc5Ung4Fml+i1uD3uOyQ=="
             crossorigin="anonymous"></script>
     {% block external_scripts %}{% endblock %}
-    <style>
-        {# Remove triangle aside of dropdowns. #}
-        .dropdown-toggle::after {
-            content: none;
-        }
-
-        {# Fix navigation bar height. #}
-        .navbar, .navbar img {
-            height: 3.5rem;
-        }
-
-        {# Move page content downwards to fit navigation bar. #}
-        .container-fluid > .row:first-child {
-            margin-top: 4.5rem;
-        }
-
-        {# Remove rounded corners of cards. #}
-        .card {
-            border-radius: 0;
-        }
-
-        {# Remove ugly dots before list items, we will replace them by custom icons later. #}
-        .sidebar ul {
-            list-style: none;
-        }
-
-        .sidebar .card-body > ul {
-            padding-left: 1rem;
-        }
-
-        .sidebar li::before, .breadcrumb-item + .breadcrumb-item::before {
-            font-family: "Font Awesome 5 Free", monospace;
-            font-weight: 900;
-        }
-
-        .sidebar li::before {
-            margin-right: 0.5rem;
-        }
-
-        .sidebar .card-body > ul > li::before, .breadcrumb-item + .breadcrumb-item::before {
-            content: '\f105';
-        }
-
-        .sidebar .card-body > ul > ul > li::before {
-            content: '\f0da';
-        }
-
-        {# Disable blue text and underline of links, change them into custom hover styles. #}
-        .card > a, .card li > a, .breadcrumb-item a {
-            text-decoration: none;
-            color: black;
-        }
-
-        .card > a:hover, .card li > a:hover, .breadcrumb-item a:hover {
-            text-decoration: none;
-            color: darkgray;
-        }
-
-        {% block external-styles %}{% endblock %}
-    </style>
 </head>
 <body>
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
@@ -266,7 +207,7 @@
     </div>
 </div>
 <script type="text/javascript">$(document).ready(() => renderMathInElement(document.body))</script>
-{% include 'component-bg-stars.html' %}
+{% include 'component-bg.html' %}
 {% include 'component-login-logout.html' %}
 </body>
 </html>

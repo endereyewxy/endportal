@@ -1,18 +1,2 @@
 {% extends 'blog.html' %}
-{% block external-styles %}
-    {# Make the table width 100%. #}
-    .markdown-body table {
-        display: table;
-    }
-
-    {# Add rounded corners to make images less sharp. #}
-    .markdown-body img {
-        border-radius: 5px;
-        left: 50%;
-        transform: translateX(-50%);
-        position: relative;
-    }
-{% endblock %}
-{% block content %}
-    <div class="card-body markdown-body">{{ content_text | safe }}</div>
-{% endblock %}
+{% block content %}<div class="card-body markdown-body">{{ content_text | safe }}</div>{% endblock %}
