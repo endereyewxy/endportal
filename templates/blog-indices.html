@@ -1,4 +1,5 @@
 {% extends 'blog.html' %}
+{% load blog %}
 {# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}
 {% block title %}{% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}{% endblock %}
 {% block meta %}{% endblock %}
@@ -10,14 +11,10 @@
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
                         <div class="mb-3">
-                            {% for tag in blog.content_tags %}
-                                <div class="badge badge-secondary">{{ tag }}</div>
-                            {% endfor %}
+                            {% for tag in blog.content_tags %}{% tag tag nolink %}{% endfor %}
                         </div>
                         <p>{{ blog.content_desc }}</p>
-                        <div class="text-muted text-right">
-                            <span>{{ blog.publish_date | date:"Y-m-d" }}&nbsp;&nbsp;&nbsp;&nbsp;{{ blog.publish_desc }}</span>
-                        </div>
+                        {% date blog.publish_date blog.publish_desc %}
                     </div>
                 </a>
             </div>

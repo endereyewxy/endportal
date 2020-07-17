@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -127,7 +128,6 @@ def content(request, path):
 
     # Process url links and tags
     context['content_urls'] = [tuple(tag.strip().split(':::')) for tag in context['content_urls'].split('\n')]
-    print(context['content_urls'])
     context['content_tags'] = context['content_tags'].split(',')
 
     # Process content text according to its type
@@ -233,6 +233,8 @@ def publish(request):
         else:
             # Set a default name to get rid of the ugly title
             context['content_name'] = '新增'
+            # Set default date to current date
+            context['publish_date'] = datetime.now()
         return render(request, 'blog-publish.html', context)
 
     if request.method == 'POST':

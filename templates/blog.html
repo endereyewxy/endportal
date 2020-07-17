@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load blog %}
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -109,88 +110,57 @@
         <div class="col-1"></div>
         <div class="col-2 sidebar">
             {% block meta %}
-                <div class="card shadow mb-3">
-                    <div class="card-body">
-                        <div class="markdown-body"><h2>{{ content_name }}</h2></div>
-                        <div class="mb-3">
-                            {% for tag in content_tags %}
-                                <a href="{% url 'blog-indices' %}?tag={{ tag }}" class="badge badge-secondary">
-                                    {{ tag }}
-                                </a>
-                            {% endfor %}
-                        </div>
-                        <p>{{ content_desc }}</p>
-                        <div class="text-muted text-right">
-                            <span>{{ publish_date | date:"Y-m-d" }}&nbsp;&nbsp;&nbsp;&nbsp;{{ publish_desc }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card shadow mb-3">
-                    <div class="card-body">
-                        <div class="markdown-body mb-3"><h2>文章目录</h2></div>
-                        <ul>
-                            {% for name, href in content_toc %}
-                                {% if name is None %}
-                                    <ul>
-                                        {% for name, href in href %}
-                                            <li><a href="#{{ href }}">{{ name }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <li><a href="#{{ href }}">{{ name }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                <div class="card shadow mb-3">
-                    <div class="card-body">
-                        <div class="markdown-body mb-3"><h2>相关连接</h2></div>
-                        <ul>
-                            {% for title, href in content_urls %}
-                                <li><a href="{{ href }}">{{ title }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+                {% sidecard content_name %}
+                    <p>{{ content_desc }}</p>
+                    {% date publish_date publish_desc %}
+                {% endsidecard %}
+                {% sidecard '文章目录' %}
+                    <ul>
+                        {% for name, href in content_toc %}
+                            {% if name is None %}
+                                <ul>
+                                    {% for name, href in href %}
+                                        <li><a href="#{{ href }}">{{ name }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <li><a href="#{{ href }}">{{ name }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endsidecard %}
+                {% sidecard '相关连接' %}
+                    <ul>
+                        {% for title, href in content_urls %}
+                            <li><a href="{{ href }}">{{ title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endsidecard %}
             {% endblock %}
             {% if subd is not None %}
-                <div class="card shadow mb-3">
-                    <div class="card-body">
-                        <div class="markdown-body mb-3"><h2>下属目录</h2></div>
-                        <ul>
-                            {% for sub_path in subd %}
-                                <li class="mb-3">
-                                    <a href="{{ request.path }}/{{ sub_path }}">{{ sub_path }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            {% endif %}
-            <div class="card shadow mb-3">
-                <div class="card-body">
-                    <div class="markdown-body mb-3"><h2>最近</h2></div>
+                {% sidecard '下属目录' %}
                     <ul>
-                        {% for title, date, href in rect %}
+                        {% for sub_path in subd %}
                             <li class="mb-3">
-                                <a href="{% url 'blog-content' path='' %}{{ href }}">{{ title }}</a>
-                                <div class="text-muted text-right"><span>{{ date | date:"Y-m-d" }}</span></div>
+                                <a href="{{ request.path }}{{ sub_path }}/">{{ sub_path }}</a>
                             </li>
                         {% endfor %}
                     </ul>
-                </div>
-            </div>
-            <div class="card shadow mb-3">
-                <div class="card-body">
-                    <div class="markdown-body mb-3"><h2>标签</h2></div>
-                    <h4>
-                        {% for tag in tags %}
-                            <a href="{% url 'blog-indices' %}?tag={{ tag }}" class="badge badge-secondary">{{ tag }}</a>
-                        {% endfor %}
-                    </h4>
-                </div>
-            </div>
+                {% endsidecard %}
+            {% endif %}
+            {% sidecard '最近' %}
+                <ul>
+                    {% for title, date, href in rect %}
+                        <li class="mb-3">
+                            <a href="{% url 'blog-content' path='' %}{{ href }}/">{{ title }}</a>
+                            {% date date %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endsidecard %}
+            {% sidecard '标签' %}
+                <h4>{% for tag in tags %}{% tag tag %}{% endfor %}</h4>
+            {% endsidecard %}
         </div>
         <div class="col-8">
             <div class="card shadow">{% block content %}{% endblock %}</div>
