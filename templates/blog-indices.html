@@ -8,7 +8,7 @@
     <div class="list-group list-group-flush mb-3">
         {% for blog in blog %}
             <div class="card list-group-item list-group-item-action">
-                <a href="/blog/{{ blog.publish_path }}" class="row no-gutters stretched-link">
+                <a href="/blog/{{ blog.publish_path }}/" class="row no-gutters stretched-link">
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
                         {# The streched-link class will extend every <a> tag, so we are forces to use divs to show tags. #}

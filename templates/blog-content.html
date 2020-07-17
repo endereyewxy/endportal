@@ -1,2 +1,7 @@
 {% extends 'blog.html' %}
-{% block content %}<div class="card-body markdown-body">{{ content_text | safe }}</div>{% endblock %}
+{% block content %}
+    <div class="card-body markdown-body">{{ content_text | safe }}</div>
+    <script type="text/javascript">
+        $(document).ready(() => renderMathInElement(document.body))
+    </script>
+{% endblock %}

@@ -1,61 +1,47 @@
 {% extends 'blog.html' %}
-{% block external_scripts %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.1.1/css/fileinput.min.css"
-          integrity="sha512-GfiuxDoAwe470pDVm1TqVyXYgOJc2uMuEzqx3j3n5KFdUv35z4WJssXJj+87mffXCGjOpo5/93r1yfaUD0Oi8g=="
-          crossorigin="anonymous"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
-            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.1.1/js/fileinput.min.js"
-            integrity="sha512-Z9t682I7H/fW/wjZsZHgHc0vvu4O17zNvF/b0E7KRNxqt6lYDsjV2AwMkcuYs5PPttcfoAWC0jwok7qPmwXPgw=="
-            crossorigin="anonymous"></script>
-{% endblock %}
+{% load blog %}
 {% block meta %}
-    <div class="card shadow mb-3">
-        <div class="card-body">
-            <div class="markdown-body mb-3"><h2>编辑</h2></div>
-            <form id="publish-form" action="{% url 'blog-publish' %}" method="post">
-                {% csrf_token %}
-                {% if id is not None %}
-                    {# This is modification, not creation, id should be passed over. #}
-                    <input type="hidden" name="id" value="{{ id }}">
-                {% endif %}
-                <div class="form-group">
-                    <label for="publish-publish-path">路径</label>
-                    <input id="publish-publish-path" type="text" name="publish_path" class="form-control" required
-                           value="{{ publish_path }}">
-                </div>
-                <div class="form-group">
-                    <label for="publish-content-name">标题</label>
-                    <input id="publish-content-name" type="text" name="content_name" class="form-control" required
-                           value="{{ content_name }}">
-                </div>
-                <div class="form-group">
-                    <label for="publish-content-type">类型</label>
-                    <input id="publish-content-type" type="text" name="content_type" class="form-control" required
-                           value="{{ content_type }}">
-                </div>
-                <div class="form-group">
-                    <label for="publish-content-tags">标签</label>
-                    <input id="publish-content-tags" type="text" name="content_tags" class="form-control" required
-                           value="{{ content_tags }}">
-                </div>
-                <div class="form-group">
-                    <label for="publish-publish-date">发布日期</label>
-                    <input id="publish-publish-date" type="date" name="publish_date" class="form-control" required
-                           value="{{ publish_date | date:"Y-m-d" }}">
-                </div>
-                <div class="form-group">
-                    <label for="publish-publish-desc">发布描述</label>
-                    <input id="publish-publish-desc" type="text" name="publish_desc" class="form-control" required
-                           value="{{ publish_desc }}">
-                </div>
-                <div class="text-right">
-                    <button type="submit" class="btn btn-primary">发布</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    {% sidecard '编辑' %}
+        <form id="publish-form" action="{% url 'blog-publish' %}" method="post">
+            {% csrf_token %}
+            {% if id is not None %}
+                <input type="hidden" name="id" value="{{ id }}">
+            {% endif %}
+            <div class="form-group">
+                <label for="publish-publish-path">路径</label>
+                <input id="publish-publish-path" type="text" name="publish_path" class="form-control" required
+                       value="{{ publish_path }}">
+            </div>
+            <div class="form-group">
+                <label for="publish-content-name">标题</label>
+                <input id="publish-content-name" type="text" name="content_name" class="form-control" required
+                       value="{{ content_name }}">
+            </div>
+            <div class="form-group">
+                <label for="publish-content-type">类型</label>
+                <input id="publish-content-type" type="text" name="content_type" class="form-control" required
+                       value="{{ content_type }}">
+            </div>
+            <div class="form-group">
+                <label for="publish-content-tags">标签</label>
+                <input id="publish-content-tags" type="text" name="content_tags" class="form-control" required
+                       value="{{ content_tags }}">
+            </div>
+            <div class="form-group">
+                <label for="publish-publish-date">发布日期</label>
+                <input id="publish-publish-date" type="date" name="publish_date" class="form-control" required
+                       value="{{ publish_date | date:"Y-m-d" }}">
+            </div>
+            <div class="form-group">
+                <label for="publish-publish-desc">发布描述</label>
+                <input id="publish-publish-desc" type="text" name="publish_desc" class="form-control" required
+                       value="{{ publish_desc }}">
+            </div>
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary">发布</button>
+            </div>
+        </form>
+    {% endsidecard %}
 {% endblock %}
 {% block content %}
     <div class="card-body">
@@ -71,13 +57,7 @@
                       class="form-control">{{ content_urls }}</textarea>
         </div>
         <div class="form-group">
-            <input id="input-id" type="file" class="file" form="" multiple
-                   data-show-close="false" data-preview-file-type="image" data-show-caption="true"
-                   data-allowed-file-extensions='["png", "jpg", "jpeg", "gif", "svg"]'
-                   data-upload-url="{% url 'blog-add-img' %}"
-                   data-remove-icon='<i class="fas fa-trash-alt"></i>' data-remove-label=""
-                   data-upload-icon='<i class="fas fa-upload"></i>' data-upload-label=""
-                   data-browse-icon='<i class="fas fa-folder-open"></i>' data-browse-label="">
+            <input id="file-upload" type="file" class="file" form="" multiple>
         </div>
         <div class="form-group">
             <label for="publish-content-text">正文</label>
@@ -85,5 +65,22 @@
                       class="form-control">{{ content_text }}</textarea>
         </div>
     </div>
-    <script>$(document).ready(() => autosize($('textarea')));</script>
+    <script type="text/javascript">
+        $(document).ready(() => {
+            autosize($('textarea'));
+            $('#file-upload').fileinput({
+                showCaption: true,
+                showClose: false,
+                previewFileType: 'image',
+                allowedFileExtensions: ['png', 'jpg', 'jpeg', 'gif', 'svg'],
+                uploadUrl: '{% url "blog-add-img" %}',
+                removeIcon: '<i class="fas fa-trash-alt"></i>',
+                uploadIcon: '<i class="fas fa-upload"></i>',
+                browseIcon: '<i class="fas fa-folder-open"></i>',
+                removeLabel: '',
+                uploadLabel: '',
+                browseLabel: ''
+            });
+        });
+    </script>
 {% endblock %}

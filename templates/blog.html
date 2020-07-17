@@ -13,167 +13,176 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css"
           integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg=="
           crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css"
+          integrity="sha512-SBL9R0mkYbWGuy/0DLHNxYHPScUMar9Y55t8vrnN42ZYfLZ4SnjXqCFfEhPTnj9pedAs5F+WZkzjq1qGS8+VGg=="
+          crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
           integrity="sha512-xA6Hp6oezhjd6LiLZynuukm80f8BoZ3OpcEYaqKoCV3HKQDrYjDE1Gu8ocxgxoXmwmSzM4iqPvCsOkQNiu41GA=="
           crossorigin="anonymous"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-            integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.0/animate.min.css"
+          integrity="sha512-kb1CHTNhoLzinkElTgWn246D6pX22xj8jFNKsDmVwIQo+px7n1yjJUZraVuR/ou6Kmgea4vZXZeUDbqKtXkEMg=="
+          crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"
+            integrity="sha512-DUC8yqWf7ez3JD1jszxCWSVB0DMP78eOyBpMa5aJki1bIRARykviOuImIczkxlj1KhVSyS16w2FSQetkD4UU2w=="
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"
             integrity="sha512-I5TkutApDjnWuX+smLIPZNhw+LhTd8WrQhdCKsxCFRSvhFx2km8ZfEpNIhF9nq04msHhOkE8BMOBj5QE07yhMA=="
             crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css"
-          integrity="sha512-SBL9R0mkYbWGuy/0DLHNxYHPScUMar9Y55t8vrnN42ZYfLZ4SnjXqCFfEhPTnj9pedAs5F+WZkzjq1qGS8+VGg=="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.1.1/css/fileinput.min.css"
+          integrity="sha512-GfiuxDoAwe470pDVm1TqVyXYgOJc2uMuEzqx3j3n5KFdUv35z4WJssXJj+87mffXCGjOpo5/93r1yfaUD0Oi8g=="
           crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
+            integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.1.1/js/fileinput.min.js"
+            integrity="sha512-Z9t682I7H/fW/wjZsZHgHc0vvu4O17zNvF/b0E7KRNxqt6lYDsjV2AwMkcuYs5PPttcfoAWC0jwok7qPmwXPgw=="
+            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"
             integrity="sha512-2k+W+3OGhtd3whnGt33ek/oA1M/aqB6Mir+WIcCrSuIC2yD6iTX6IuPf5q1oEJGQT06jma5K6ca7Xqb4u7Urow=="
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"
             integrity="sha512-GicGrbLBXJh2kbF+DYD+sCW5hPavoOfVAKSOE7+qgYCgVTcwe+/D4LXegS9JVTY72ovc5Ung4Fml+i1uD3uOyQ=="
             crossorigin="anonymous"></script>
-    {% block external_scripts %}{% endblock %}
 </head>
 <body>
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
-    <a class="navbar-brand" href="{% url 'blog-content' path='' %}"><img src="{% static 'home.png' %}" alt="Home"></a>
-    <div class="collapse navbar-collapse">
-        <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
-            <div class="input-group mr-sm-2">
-                {# The last search text is automatically filled into the search bar. #}
-                <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
-                       aria-label="搜索">
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-info"><i class="fas fa-search"></i></button>
+<div id="main">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
+        <a class="navbar-brand" href="{% url 'blog-content' path='' %}">
+            <img src="{% static 'home.png' %}" alt="Home">
+        </a>
+        <div class="collapse navbar-collapse">
+            <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
+                <div class="input-group mr-sm-2">
+                    <input type="text" name="title" value="{{ stit }}" class="form-control" placeholder="搜索"
+                           aria-label="搜索">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-outline-info"><i class="fas fa-search"></i></button>
+                    </div>
                 </div>
-            </div>
-        </form>
-        {# Major categories are displayed on the navigation bar. #}
-        <ul class="navbar-nav mr-auto">
-            {% for category in cate %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'blog-content' path='' %}{{ category }}">{{ category }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-        {% if request.user.is_authenticated %}
-            <div class="dropdown">
-                <button class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                    {{ request.user.username }}&nbsp;&laquo;{{ request.user.email }}&raquo;
-                </button>
-                <div class="dropdown-menu">
-                    {% if request.user.is_superuser %}
-                        {# Only superusers have permissions to create and edit blogs. #}
-                        <a class="dropdown-item" href="{% url 'blog-publish' %}"><i class="fas fa-plus">&nbsp;添加</i></a>
-                        {% if id is not None %}
-                            {# Can only edit existing blogs. #}
-                            <a class="dropdown-item"
-                               href="{% url 'blog-publish' %}?id={{ id }}">
-                                <i class="fas fa-pen">&nbsp;编辑</i>
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    <a class="dropdown-item" href="javascript:" onclick="logout()">
-                        <i class="fas fa-sign-out-alt">&nbsp;登出</i>
-                    </a>
-                </div>
-            </div>
-        {% else %}
-            {# Put a login button since the user is not logged in yet. #}
-            <button class="btn btn-outline-info" data-toggle="modal" data-target="#login-modal">登录</button>
-        {% endif %}
-    </div>
-</nav>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-1"></div>
-        <div class="col-10">
-            <ul class="breadcrumb shadow">
-                <li class="breadcrumb-item">当前位置</li>
-                {% for href, name in path %}
-                    {% if forloop.last %}
-                        <li class="breadcrumb-item active">{{ name }}</li>
-                    {% else %}
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'blog-content' path='' %}{{ href }}">{{ name }}</a>
-                        </li>
-                    {% endif %}
+            </form>
+            <ul class="navbar-nav mr-auto">
+                {% for category in cate %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blog-content' path='' %}{{ category }}">{{ category }}</a>
+                    </li>
                 {% endfor %}
             </ul>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-1"></div>
-        <div class="col-2 sidebar">
-            {% block meta %}
-                {% sidecard content_name %}
-                    <p>{{ content_desc }}</p>
-                    {% date publish_date publish_desc %}
-                {% endsidecard %}
-                {% sidecard '文章目录' %}
-                    <ul>
-                        {% for name, href in content_toc %}
-                            {% if name is None %}
-                                <ul>
-                                    {% for name, href in href %}
-                                        <li><a href="#{{ href }}">{{ name }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <li><a href="#{{ href }}">{{ name }}</a></li>
+            {% if request.user.is_authenticated %}
+                <div class="dropdown">
+                    <button class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                        {{ request.user.username }}&nbsp;&laquo;{{ request.user.email }}&raquo;
+                    </button>
+                    <div class="dropdown-menu">
+                        {% if request.user.is_superuser %}
+                            <a class="dropdown-item" href="{% url 'blog-publish' %}"><i class="fas fa-plus">&nbsp;添加</i></a>
+                            {% if id is not None %}
+                                <a class="dropdown-item"
+                                   href="{% url 'blog-publish' %}?id={{ id }}">
+                                    <i class="fas fa-pen">&nbsp;编辑</i>
+                                </a>
                             {% endif %}
-                        {% endfor %}
-                    </ul>
-                {% endsidecard %}
-                {% sidecard '相关连接' %}
+                        {% endif %}
+                        <button type="submit" class="dropdown-item" form="logout-form">
+                            <i class="fas fa-sign-out-alt">&nbsp;登出</i>
+                        </button>
+                        <form id="logout-form" class="no-smooth" action="{% url "user-logout" %}" method="post" hidden>
+                            <input type="hidden" name="url" value="{{ request.path }}?{{ request.GET.urlencode }}">
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <ul class="breadcrumb shadow">
+                    <li class="breadcrumb-item">当前位置</li>
+                    {% for href, name in path %}
+                        {% if forloop.last %}
+                            <li class="breadcrumb-item active">{{ name }}</li>
+                        {% else %}
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'blog-content' path='' %}{{ href }}">{{ name }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-2 sidebar">
+                {% block meta %}
+                    {% sidecard content_name %}
+                        <p>{{ content_desc }}</p>
+                        {% date publish_date publish_desc %}
+                    {% endsidecard %}
+                    {% sidecard '文章目录' %}
+                        <ul>
+                            {% for name, href in content_toc %}
+                                {% if name is None %}
+                                    <ul>
+                                        {% for name, href in href %}
+                                            <li><a href="#{{ href }}">{{ name }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <li><a href="#{{ href }}">{{ name }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% endsidecard %}
+                    {% sidecard '相关连接' %}
+                        <ul>
+                            {% for title, href in content_urls %}
+                                <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% endsidecard %}
+                {% endblock %}
+                {% if subd is not None %}
+                    {% sidecard '下属目录' %}
+                        <ul>
+                            {% for sub_path in subd %}
+                                <li class="mb-3">
+                                    <a href="{{ request.path }}{{ sub_path }}/">{{ sub_path }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endsidecard %}
+                {% endif %}
+                {% sidecard '最近' %}
                     <ul>
-                        {% for title, href in content_urls %}
-                            <li><a href="{{ href }}">{{ title }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endsidecard %}
-            {% endblock %}
-            {% if subd is not None %}
-                {% sidecard '下属目录' %}
-                    <ul>
-                        {% for sub_path in subd %}
+                        {% for title, date, href in rect %}
                             <li class="mb-3">
-                                <a href="{{ request.path }}{{ sub_path }}/">{{ sub_path }}</a>
+                                <a href="{% url 'blog-content' path='' %}{{ href }}/">{{ title }}</a>
+                                {% date date %}
                             </li>
                         {% endfor %}
                     </ul>
                 {% endsidecard %}
-            {% endif %}
-            {% sidecard '最近' %}
-                <ul>
-                    {% for title, date, href in rect %}
-                        <li class="mb-3">
-                            <a href="{% url 'blog-content' path='' %}{{ href }}/">{{ title }}</a>
-                            {% date date %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endsidecard %}
-            {% sidecard '标签' %}
-                <h4>{% for tag in tags %}{% tag tag %}{% endfor %}</h4>
-            {% endsidecard %}
+                {% sidecard '标签' %}
+                    <h4>{% for tag in tags %}{% tag tag %}{% endfor %}</h4>
+                {% endsidecard %}
+            </div>
+            <div class="col-8">
+                <div class="card shadow content">{% block content %}{% endblock %}</div>
+            </div>
         </div>
-        <div class="col-8">
-            <div class="card shadow">{% block content %}{% endblock %}</div>
-        </div>
-    </div>
-    <div class="row mb-5">
-        <hr style="width: 85%"/>
-        <div class="text-center w-100">
-            <p>
-                <i class="fab fa-github"></i>&nbsp;
-                <a class="text-muted" href="https://github.com/endereye">访问Github</a>
-            </p>
+        <div class="row mb-5 footer">
+            <hr style="width: 85%"/>
+            <div class="text-center w-100">
+                <p>
+                    <i class="fab fa-github"></i>&nbsp;
+                    <a class="text-muted" href="https://github.com/endereye">访问Github</a>
+                </p>
+            </div>
         </div>
     </div>
 </div>
-<script type="text/javascript">$(document).ready(() => renderMathInElement(document.body))</script>
-{% include 'component-bg.html' %}
-{% include 'component-login-logout.html' %}
 </body>
+{% include 'component-animations.html' %}
 </html>
