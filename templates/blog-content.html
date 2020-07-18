@@ -10,11 +10,11 @@
                 {% if name is None %}
                     <ul>
                         {% for name, href in href %}
-                            <li><a href="#{{ href }}">{{ name }}</a></li>
+                            <li><a href="#" onclick="smoothScroll($('#{{ href }}').position().top)">{{ name }}</a></li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <li><a href="#{{ href }}">{{ name }}</a></li>
+                    <li><a href="#" onclick="smoothScroll($('#{{ href }}').position().top)">{{ name }}</a></li>
                 {% endif %}
             {% endfor %}
         </ul>
