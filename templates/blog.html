@@ -109,34 +109,7 @@
         <div class="row mb-3">
             <div class="col-1"></div>
             <div class="col-2 sidebar">
-                {% block meta %}
-                    {% sidecard content_name %}
-                        <p>{{ content_desc }}</p>
-                        {% date publish_date publish_desc %}
-                    {% endsidecard %}
-                    {% sidecard '文章目录' %}
-                        <ul>
-                            {% for name, href in content_toc %}
-                                {% if name is None %}
-                                    <ul>
-                                        {% for name, href in href %}
-                                            <li><a href="#{{ href }}">{{ name }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <li><a href="#{{ href }}">{{ name }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    {% endsidecard %}
-                    {% sidecard '相关连接' %}
-                        <ul>
-                            {% for title, href in content_urls %}
-                                <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    {% endsidecard %}
-                {% endblock %}
+                {% block sidecards %}{% endblock %}
                 {% if subd is not None %}
                     {% sidecard '下属目录' %}
                         <ul>

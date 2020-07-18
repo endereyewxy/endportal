@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from urllib.parse import unquote
 
@@ -36,19 +37,17 @@ def get_universal_context(path, sub_dir=True):
     :return A default context.
     :rtype dict
     """
-    # collect categories (the first directory of publish path) and tags.
+    # Collect categories (the first directory of publish path) and tags.
     categories, tags = set(), set()
     for blog in Blog.objects.all().only('publish_path', 'content_tags'):
         categories.add(blog.publish_path.split('/')[0])
         for tag in blog.content_tags.split(','):
             tags.add(tag)
-
-    # Collect 5 recent articles.
+    # Collect 5 most recent articles.
     query_set = Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')
     query_set = query_set[:min(5, len(query_set))]
     recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in query_set]
-
-    # Get subdirectories.
+    # Get subdirectories if the current path is not root.
     subd = set()
     if sub_dir and path != '':
         for blog in Blog.objects.filter(publish_path__startswith=path):
@@ -58,9 +57,9 @@ def get_universal_context(path, sub_dir=True):
             # Ignore articles
             if path + '/' + sub_path != blog.publish_path:
                 subd.add(sub_path)
+    # The front-end template can not recognize empty sets, so we change them into nones.
     if len(subd) == 0:
         subd = None
-
     # Parse requested path. If the path is empty, return an empty string instead.
     if len(path) > 0:
         href, path = '', path.split('/')
@@ -70,26 +69,51 @@ def get_universal_context(path, sub_dir=True):
     return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path, 'subd': subd}
 
 
-def get_index_context(blog):
+def blog_to_dict(blog, process_content=True):
     """
-    Get the dictionary form of a blog object to be displayed on an index page.
+    Get a dictionary containing data of a given blog object. Special fields such as urls and tags are processed into
+    list.
     :param blog: Blog object.
-    :return: Similar to model_to_dict but some unnecessary fields omitted.
-    :rtype: dict
+    :param process_content: Whether to process the content field into HTML and add menu field.
+    :return: dict
     """
-    return {
-        'publish_path': blog.publish_path,
-        'publish_date': blog.publish_date,
-        'publish_desc': blog.publish_desc,
-        'content_name': blog.content_name,
-        'content_desc': blog.content_desc,
-        'content_tags': blog.content_tags.split(',')
-    }
+    blog = model_to_dict(blog)
+    blog['content_urls'] = [tuple(url.strip().split(':::')) for url in blog['content_urls'].split('\n')]
+    blog['content_tags'] = blog['content_tags'].split(',')
+    if not process_content:
+        return blog
+    # Now, we should handle content text.
+    # Enumerate every content type that is supported, raise a Http404 error if none of them matches.
+    if blog['content_type'] == 'markdown':
+        blog['content_text'] = markdown.convert(blog['content_text'])
+        # For markdowns, the only thing to do is to generate a menu list.
+        # In order to do this, we collect all <h2> and <h3> fragments and their ids. The <h2> will be the outer
+        # layer, while <h3> will be the inner layer. Too much layers will cause visual inconvenience so we have at
+        # most two.
+        # We do not use the official markdown TOC plugin since it can not customize the number of layers we wanted.
+        blog['content_menu'] = []
+        for header in re.finditer(r'<h([23])\s+id="([^"]+)">(.+)</h', blog['content_text']):
+            # Group one is the header type (i.e. <h2> or <h3>), group two and three are the id and title,
+            # respectively.
+            pair = (header.group(3), header.group(2))
+            if header.group(1) == '2':
+                blog['content_menu'].append(pair)
+            else:
+                if len(blog['content_menu']) != 0 and blog['content_menu'][-1][0] is None:
+                    # If the last item in the menu is already a list, all we have to do is to append the current 
+                    # <h3> to it.
+                    blog['content_menu'][-1][1].append(pair)
+                else:
+                    blog['content_menu'].append((None, [pair]))
+        return blog
+
+    raise Http404()
 
 
 def put_page_info(request, query_set, context):
     """
-    Put pagination info into the context.
+    Paginate a query set, get a slice of it (depending on the 'page' parameter of the request) and put it into the
+    `blog` field of context. The `page` and `pcnt` field will also be updated.
     :param request: Request object.
     :param query_set: Result to be paged.
     :param context: Context to be updated.
@@ -98,79 +122,31 @@ def put_page_info(request, query_set, context):
         page = int(request.GET.get('page', 1))
     except ValueError:
         raise Http404()  # Bad request if the parameter is not an integer
+    context['blog'] = [blog_to_dict(blog, False) for blog in query_set[(page - 1) * 5:page * 5]]
     context['page'] = page
     context['pcnt'] = (len(query_set) + 4) // 5
-    context['blog'] = [get_index_context(blog) for blog in query_set[(page - 1) * 5:page * 5]]
 
 
-# noinspection PyTypeChecker
 @require_GET
 def content(request, path):
-    path = unquote('/'.join(path[:-1].split('/')))
+    path = unquote('/'.join(path[:-1].split('/')))  # remove the trailing slash
     context = get_universal_context(path)
-
     try:
-        context.update(model_to_dict(Blog.objects.get(publish_path=path)))
+        context.update(blog_to_dict(Blog.objects.get(publish_path=path)))
+        return render(request, 'blog-content.html', context)
     except Blog.DoesNotExist:
         # If the blog specified by this path does not exists, then check if there are any blogs under this directory. If
         # yes, display an index page. Otherwise, return 404.
         query_set = Blog.objects.filter(publish_path__startswith=path).order_by('-publish_date')
-        # Note that empty path (i.e. root) will never raise 404, otherwise there will be no entrance if no blogs online.
+        # Note that empty path (i.e. root) will never raise 404, otherwise there will be no entrance if there are no
+        # blogs online.
         if len(query_set) == 0 and path != '':
             raise Http404()
         put_page_info(request, query_set, context)
-
         # Because the template can not distinguish between normal index pages and search pages, we have to provide the
         # url for page navigation.
         context['rurl'] = request.path + '?'
-
         return render(request, 'blog-indices.html', context)
-
-    # Process url links and tags
-    context['content_urls'] = [tuple(tag.strip().split(':::')) for tag in context['content_urls'].split('\n')]
-    context['content_tags'] = context['content_tags'].split(',')
-
-    # Process content text according to its type
-    if context['content_type'] == 'markdown':
-        context['content_text'] = markdown.convert(context['content_text'])
-        # The official TOC plugin is disgusting, so we do by ourselves. We do not want too much nesting lists since
-        # it will cause line wrapping, so we collect two levels of headers only. Since <h1> is the main title of the
-        # article and is meaningless to put it in TOC, we should collect <h2> and <h3> only.
-
-        # Every item of the generated TOC list is a tuple of two elements: the first is the title (i.e the text to be
-        # displayed), the second is the html target's id. If the first element if none, it implies that the second
-        # element is a list representing the inner TOC (<h3>). There are at most two layers.
-
-        # TODO this may be slow since it will iterate the whole document, some sort of caching can be added
-        toc = []
-        for i in range(len(context['content_text']) - 3):
-            if context['content_text'][i:i + 3] == '<h2':
-                # The next eight characters must be '<h2 id="', so the position of the first '"' from the ninth
-                # character is the end of id.
-                href_end = i + 8 + context['content_text'][i + 8:].index('"')
-                # After then, the fist '</h2>' is the end of what should be displayed. Remember that the '">' after href
-                # should be jumped over.
-                name_end = href_end + context['content_text'][href_end:].index('</h2>')
-                toc.append((context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end]))
-
-            if context['content_text'][i:i + 3] == '<h3':
-                # The logic here is similar to <h2>.
-                href_end = i + 8 + context['content_text'][i + 8:].index('"')
-                name_end = href_end + context['content_text'][href_end:].index('</h3>')
-                # If the last item of the list is also a nested layer, we should append the current navigation to that
-                # layer, instead of creating a new one.
-                if len(toc) > 0 and toc[-1][0] is None:
-                    toc[-1][1].append(
-                        (context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end]))
-                else:
-                    toc.append(
-                        (None,
-                         [(context['content_text'][href_end + 2:name_end], context['content_text'][i + 8:href_end])]))
-        context['content_toc'] = toc
-
-        return render(request, 'blog-content.html', context)
-
-    raise Http404()
 
 
 @login_required()
@@ -182,11 +158,11 @@ def add_img(request):
     for image in request.FILES.getlist('file_data'):
         if image.size > 10485760:  # 10M
             return JsonResponse({'error': '图片' + image.name + '体积过大'})
-
     for image in request.FILES.getlist('file_data'):
         with open(os.path.join(settings.STATIC_ROOT, 'images', image.name), 'wb') as f:
             for chunk in image.chunks():
                 f.write(chunk)
+    # The file uploader requires a JSON response, so return an empty one.
     return JsonResponse({})
 
 
@@ -194,22 +170,17 @@ def add_img(request):
 def indices(request):
     # Unquote possible Chinese characters.
     title, tag = unquote(request.GET.get('title', '')), unquote(request.GET.get('tag', ''))
-
     # The breadcrumb part needs extra handling.
     context = get_universal_context('', False)
     context['path'] = [('#', '搜索')]
-
     query_set = Blog.objects.filter(content_name__icontains=title, content_tags__contains=tag).order_by('-publish_date')
     put_page_info(request, query_set, context)
-
     # These two parameters are used to fill out the default value of the search bar.
     context['stit'] = title
     context['stag'] = tag
-
     # Because the template can not distinguish between normal index pages and search pages, we have to provide the url
     # for page navigation.
     context['rurl'] = f'{request.path}?title={title}&tag={tag}&'
-
     return render(request, 'blog-indices.html', context)
 
 
@@ -220,10 +191,8 @@ def publish(request):
         # The breadcrumb part needs extra handling, similar to indices.
         context = get_universal_context('', False)
         context['path'] = [('#', '发布')]
-
         # Add field 'stit' so that the edit option will not appear in the top-right menu again.
         context['stit'] = ''
-
         # Get an existing blog from database, if an id is given. Otherwise, this is creation, do nothing.
         if 'id' in request.GET:
             try:
@@ -252,4 +221,4 @@ def publish(request):
             if field.name != 'id':
                 blog.__setattr__(field.name, request.POST.get(field.name, ''))
         blog.save()
-        return redirect('/blog/' + blog.publish_path)  # TODO reverse won't work, don't know why
+        return redirect('blog-content', path=blog.publish_path + '/')  # The trailing slash is vital

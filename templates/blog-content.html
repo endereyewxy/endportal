@@ -1,4 +1,32 @@
 {% extends 'blog.html' %}
+{% load blog %}
+{% block sidecards %}
+    {% sidecard content_name %}
+        <p>{{ content_desc }}</p>{% date publish_date publish_desc %}
+    {% endsidecard %}
+    {% sidecard '文章目录' %}
+        <ul>
+            {% for name, href in content_menu %}
+                {% if name is None %}
+                    <ul>
+                        {% for name, href in href %}
+                            <li><a href="#{{ href }}">{{ name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <li><a href="#{{ href }}">{{ name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endsidecard %}
+    {% sidecard '相关连接' %}
+        <ul>
+            {% for title, href in content_urls %}
+                <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endsidecard %}
+{% endblock %}
 {% block content %}
     <div class="card-body markdown-body">{{ content_text | safe }}</div>
     <script type="text/javascript">

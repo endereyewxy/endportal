@@ -1,6 +1,6 @@
 {% extends 'blog.html' %}
 {% load blog %}
-{% block meta %}
+{% block sidecards %}
     {% sidecard '编辑' %}
         <form id="publish-form" action="{% url 'blog-publish' %}" method="post">
             {% csrf_token %}

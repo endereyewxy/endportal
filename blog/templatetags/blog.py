@@ -78,5 +78,5 @@ class DateNode(template.Node):
         date = self.date.resolve(context)
         desc = self.desc.resolve(context)
         return f'<div class="text-muted text-right"><span>' \
-               f'{date.strftime("%Y-%m-%d")}' + (f'&nbsp;&nbsp;&nbsp;&nbsp;{desc}' if desc != '' else '') + \
+               f'{date.strftime("%Y-%m-%d")}' + (f'，{desc}' if desc != '' else '') + \
                '</div></span>'
