@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>网络控制台</title>
+    <link rel="stylesheet" href="{% static 'css/wcui.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha512-rO2SXEKBSICa/AfyhEK5ZqWFCOok1rcgPYfGOqtX35OyiraBg6Xa4NnBJwXgpIRoXeWjcAmcQniMhp22htDc6g=="
+          crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
+          integrity="sha512-xA6Hp6oezhjd6LiLZynuukm80f8BoZ3OpcEYaqKoCV3HKQDrYjDE1Gu8ocxgxoXmwmSzM4iqPvCsOkQNiu41GA=="
+          crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"
+            integrity="sha512-DUC8yqWf7ez3JD1jszxCWSVB0DMP78eOyBpMa5aJki1bIRARykviOuImIczkxlj1KhVSyS16w2FSQetkD4UU2w=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"
+            integrity="sha512-I5TkutApDjnWuX+smLIPZNhw+LhTd8WrQhdCKsxCFRSvhFx2km8ZfEpNIhF9nq04msHhOkE8BMOBj5QE07yhMA=="
+            crossorigin="anonymous"></script>
+</head>
+<body class="text-white bg-dark">
+<div class="container d-flex flex-column">
+    <div class="mb-3"></div>
+    <form class="mb-3">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control text-white bg-dark" aria-label="指令"
+                   pattern="[-\w]+(\s+-[-\w]+\s+[-\w]+)*" required>
+            <div class="input-group-append">
+                <button class="btn btn-outline-light" type="submit"><i class="fa fa-terminal"></i></button>
+            </div>
+        </div>
+    </form>
+    <div class="response"></div>
+</div>
+<script type="text/javascript">
+    $(document).ready(() => {
+        const paragraphs =
+            (text) => `<p><span>&nbsp;</span>` + text.replace(/\n/g, '</p><p><span>&nbsp;</span>') + '</p>';
+        $('form').submit((evt) => {
+            evt.preventDefault();
+            let text = $('input').val().trim().replace(/\s+/g, ' ').split(' '), payload = {__command__: text[0]};
+            for (let i = 1; i < text.length; i += 2) {
+                payload[text[i].slice(1)] = text[i + 1];
+            }
+            $.post("{% url 'wcmd-exec' %}", payload, (resp) => {
+                $(`<p class="command"><span><i class="fas fa-check"></i></span>${text.join(' ')}</p>` + paragraphs(resp))
+                    .prependTo($('.response'));
+            }).fail((resp) => {
+                resp = resp.responseText;
+                $(`<p class="command"><span><i class="fas fa-times"></i></span>${text.join(' ')}</p>` + paragraphs(resp))
+                    .prependTo($('.response'));
+            });
+        });
+    });
+</script>
+</body>
+</html>

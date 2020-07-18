@@ -1,0 +1,25 @@
+.container {
+  height: 100vh;
+  font-family: monospace;
+}
+
+.response {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-y: auto;
+}
+
+.response {
+  span {
+    float: left;
+    width: 2rem;
+  }
+
+  > .command {
+    border-bottom: white 1px solid;
+  }
+}
