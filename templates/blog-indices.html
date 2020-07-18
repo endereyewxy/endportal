@@ -1,8 +1,9 @@
 {% extends 'blog.html' %}
 {% load blog %}
 {# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}
-{% block title %}{% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}{% endblock %}
-{# Remove all meta side-cards. #}
+{% block title %}
+    {% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}
+{% endblock %}
 {% block meta %}{% endblock %}
 {% block content %}
     <div class="list-group list-group-flush mb-3">
@@ -11,7 +12,12 @@
                 <a href="/blog/{{ blog.publish_path }}/" class="row no-gutters stretched-link">
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
-                        {# The streched-link class will extend every <a> tag, so we are forces to use divs to show tags. #}
+                        {% comment %}
+                        We declared the whole card to be `stretched-link`, so that we could click anywhere inside the
+                        card to navigate to the corresponding article. But this also causes a problem: The
+                        `stretched-link` class will extend every <a> tag in its content, and if there are multiple ones,
+                        it can trigger a render issue. So our blog tags cannot have links on them.
+                        {% endcomment %}
                         <div class="mb-3">{% for tag in blog.content_tags %}{% tag tag nolink %}{% endfor %}</div>
                         <p>{{ blog.content_desc }}</p>
                         {% date blog.publish_date blog.publish_desc %}
@@ -40,7 +46,6 @@
             {% with range='.'|center:pcnt %}
                 {% for _ in range %}
                     {% ifequal forloop.counter page %}
-                        {# You can not click on the current page, obviously. #}
                         <li class="page-item active"><span class="page-link">{{ forloop.counter }}</span></li>
                     {% else %}
                         <li class="page-item">

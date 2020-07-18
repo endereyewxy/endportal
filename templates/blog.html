@@ -83,12 +83,6 @@
                                 </a>
                             {% endif %}
                         {% endif %}
-                        <button type="submit" class="dropdown-item" form="logout-form">
-                            <i class="fas fa-sign-out-alt">&nbsp;登出</i>
-                        </button>
-                        <form id="logout-form" class="no-smooth" action="{% url "user-logout" %}" method="post" hidden>
-                            <input type="hidden" name="url" value="{{ request.path }}?{{ request.GET.urlencode }}">
-                        </form>
                     </div>
                 </div>
             {% endif %}
