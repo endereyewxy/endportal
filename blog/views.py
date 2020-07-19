@@ -78,7 +78,8 @@ def blog_to_dict(blog, process_content=True):
     :return: dict
     """
     blog = model_to_dict(blog)
-    blog['content_urls'] = [tuple(url.strip().split(':::')) for url in blog['content_urls'].split('\n')]
+    if blog['content_urls'] != '':
+        blog['content_urls'] = [tuple(url.strip().split(':::')) for url in blog['content_urls'].split('\n')]
     blog['content_tags'] = blog['content_tags'].split(',')
     if not process_content:
         return blog

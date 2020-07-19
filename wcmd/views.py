@@ -27,18 +27,18 @@ def wcmd_exec(request):
                 if text[i - 1].startswith('--'):
                     # This is a keyword parameter.
                     name = text[i - 1][2:]
-                    if name not in command.named_params:
+                    if name not in command.key_params:
                         raise WebCommand.Failed('Unknown keyword parameter %s of value "%s". ' % (name, text[i]))
                     try:
-                        kwargs[name] = command.named_params[name].type(text[i])
+                        kwargs[name] = command.key_params[name].type(text[i])
                     except ValueError:
                         raise WebCommand.Failed(
                             'Preprocessor of keyword parameter %s rejected value "%s".' % (name, text[i]))
                 else:
                     # This is a positional parameter. The total count must not exceed.
-                    if len(args) >= len(command.order_params):
+                    if len(args) >= len(command.pos_params):
                         raise WebCommand.Failed('Too much arguments.')
-                    param = command.order_params[len(args)]
+                    param = command.pos_params[len(args)]
                     try:
                         args.append(param.type(text[i]))
                     except ValueError:

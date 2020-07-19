@@ -19,14 +19,16 @@
             {% endfor %}
         </ul>
     {% endsidecard %}
-    {% sidecard '相关连接' %}
-        <ul>
-            {% for title, href in content_urls %}
-                {# Disabled smooth transition for external links. #}
-                <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% endsidecard %}
+    {% ifnotequal content_urls '' %}
+        {% sidecard '相关连接' %}
+            <ul>
+                {% for title, href in content_urls %}
+                    {# Disabled smooth transition for external links. #}
+                    <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endsidecard %}
+    {% endifnotequal %}
 {% endblock %}
 {% block content %}
     <div class="card-body markdown-body">{{ content_text | safe }}</div>
