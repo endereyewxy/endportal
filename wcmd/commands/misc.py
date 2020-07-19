@@ -46,13 +46,13 @@ class Help(WebCommand):
 
             def add_msg(msg_, param):
                 msg_ += '\n    ' + param.name + ' ' * (max_len - len(param.name) + 1) + param.desc
-                if param.default is not None and len(param.default) > 0:
+                if param.default is not None and param.default != '':
                     msg_ += '\n    ' + ' ' * (max_len + 1) + 'Default to be: ' + str(param.default)
                 return msg_
 
             for param in command.pos_params:
                 msg = add_msg(msg, param)
-            for _, param in command.key_params:
+            for param in command.key_params.values():
                 msg = add_msg(msg, param)
             return msg
 
