@@ -10,8 +10,7 @@ from django.forms import model_to_dict
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.text import slugify
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET
 from markdown import Markdown
 
 from blog.models import Blog
@@ -148,23 +147,6 @@ def content(request, path):
         return render(request, 'blog-indices.html', context)
 
 
-@login_required()
-@user_passes_test(lambda u: u.is_superuser)
-@require_POST
-@csrf_exempt  # the file upload plugin does not support csrf, so disable it
-def add_img(request):
-    # Validate the images first, if any of them is invalid, the whole batch will not be saved.
-    for image in request.FILES.getlist('file_data'):
-        if image.size > 10485760:  # 10M
-            return JsonResponse({'error': '图片' + image.name + '体积过大'})
-    for image in request.FILES.getlist('file_data'):
-        with open(os.path.join(settings.STATIC_ROOT, 'images', image.name), 'wb') as f:
-            for chunk in image.chunks():
-                f.write(chunk)
-    # The file uploader requires a JSON response, so return an empty one.
-    return JsonResponse({})
-
-
 @require_GET
 def indices(request):
     keyword = unquote(request.GET.get('keyword', ''))
@@ -215,6 +197,15 @@ def publish(request):
         else:
             # This is required because django refuses to create a new blog object with empty publish date.
             blog = Blog.objects.create(publish_date=request.POST.get('publish_date'))
+        # Handle images first.
+        # Validate the images first, if any of them is invalid, the whole publish request will not be handled.
+        for image in request.FILES.getlist('images'):
+            if image.size > 10485760:  # 10M
+                return JsonResponse({'error': '图片' + image.name + '体积过大'})
+        for image in request.FILES.getlist('images'):
+            with open(os.path.join(settings.STATIC_ROOT, 'images', image.name), 'wb') as f:
+                for chunk in image.chunks():
+                    f.write(chunk)
         # Iterate through all fields and update them. It is guaranteed that the POST parameters' name is the same as
         # database columns.
         for field in Blog._meta.fields:
