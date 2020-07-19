@@ -1,4 +1,13 @@
+from threading import Thread
+from time import sleep
+
+from django.conf import settings
+
 from wcmd.commands import WebCommand
+
+# UWSGI is only provided in production environment.
+if not settings.DEBUG:
+    import uwsgi
 
 
 class Help(WebCommand):
@@ -35,11 +44,11 @@ class Help(WebCommand):
                           [len(param.name) for param in command.order_params] +
                           [len(name) for name in command.named_params])
 
-            def add_msg(msg, param):
-                msg += '\n    ' + param.name + ' ' * (max_len - len(param.name) + 1) + param.desc
+            def add_msg(msg_, param):
+                msg_ += '\n    ' + param.name + ' ' * (max_len - len(param.name) + 1) + param.desc
                 if param.default is not None and len(param.default) > 0:
-                    msg += '\n    ' + ' ' * (max_len + 1) + 'Default to be: ' + str(param.default)
-                return msg
+                    msg_ += '\n    ' + ' ' * (max_len + 1) + 'Default to be: ' + str(param.default)
+                return msg_
 
             for param in command.order_params:
                 msg = add_msg(msg, param)
@@ -48,4 +57,32 @@ class Help(WebCommand):
             return msg
 
 
-Help()
+class Restart(WebCommand):
+    """
+    Restart UWSGI server.
+    """
+
+    class RestartThread(Thread):
+        def __init__(self, delay):
+            super().__init__()
+            self.delay = delay
+
+        def run(self) -> None:
+            sleep(self.delay / 1000)
+            uwsgi.reload()
+
+    def __init__(self):
+        super().__init__('restart', 'Restart UWSGI server, requires superuser.')
+        self.add_key_param('delay', 'Delay of restarting after executing this command, in milliseconds.', type=int,
+                           default=5000)
+
+    def __call__(self, request, delay):
+        if not (request.user.is_authenticated and request.user.is_superuser):
+            raise WebCommand.Failed('Access denied, superuser is required.')
+        if settings.DEBUG:
+            raise WebCommand.Failed('This is not production environment, no UWSGI available.')
+        Restart.RestartThread(delay).start()
+        return 'Restarting in %dms, see you later...' % delay
+
+
+Help(), Restart()
