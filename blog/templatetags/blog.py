@@ -67,7 +67,7 @@ class TagNode(template.Node):
         if self.nolink:
             return f'<div class="badge badge-secondary">{tag}</div>&nbsp;'
         else:
-            return f'<a href="{reverse("blog-indices")}?tag={tag}" class="badge badge-secondary">{tag}</a>&nbsp;'
+            return f'<a href="{reverse("blog-indices")}?keyword={tag}" class="badge badge-secondary">{tag}</a>&nbsp;'
 
 
 class DateNode(template.Node):

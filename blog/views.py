@@ -5,6 +5,7 @@ from urllib.parse import unquote
 
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.db.models import Q
 from django.forms import model_to_dict
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect
@@ -165,18 +166,19 @@ def add_img(request):
 
 @require_GET
 def indices(request):
-    title, tag = unquote(request.GET.get('title', '')), unquote(request.GET.get('tag', ''))
+    keyword = unquote(request.GET.get('keyword', ''))
     context = get_universal_context('', False)
     # The breadcrumb part needs extra handling.
     context['path'] = [('#', '搜索')]
-    query_set = Blog.objects.filter(content_name__icontains=title, content_tags__contains=tag).order_by('-publish_date')
+    query_set = Blog.objects \
+        .filter(Q(content_name__icontains=keyword) | Q(content_tags__icontains=keyword)) \
+        .order_by('-publish_date')
     put_page_info(request, query_set, context)
-    # These two parameters are used to fill out the default value of the search bar.
-    context['stit'] = title
-    context['stag'] = tag
+    # This parameter is used to fill out the default value of the search bar.
+    context['skey'] = keyword
     # Because the template can not distinguish between normal index pages and search pages, we have to provide the url
     # for page navigation.
-    context['rurl'] = f'{request.path}?title={title}&tag={tag}&'
+    context['rurl'] = f'{request.path}?keyword={keyword}&'
     return render(request, 'blog-indices.html', context)
 
 
