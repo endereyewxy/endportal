@@ -22,8 +22,9 @@
 <div class="container d-flex flex-column">
     <div class="mb-3"></div>
     <form class="mb-3">
+        {% csrf_token %}
         <div class="input-group mb-3">
-            <input type="text" class="form-control text-white bg-dark" aria-label="指令" required>
+            <input type="text" name="_" class="form-control text-white bg-dark" aria-label="指令" required>
             <div class="input-group-append">
                 <button class="btn btn-outline-light" type="submit"><i class="fa fa-terminal"></i></button>
             </div>
@@ -47,9 +48,9 @@
         };
         $('form').submit((evt) => {
             evt.preventDefault();
-            const command = $('input').val();
+            const command = $('input[name=_]').val();
             switchBtnState();
-            $.post("{% url 'wcmd-exec' %}", {_: command}, (resp) => {
+            $.post("{% url 'wcmd-exec' %}", $('form').serializeArray(), (resp) => {
                 switchBtnState();
                 $(paragraphs(true, command, resp)).prependTo($('.response'));
             }).fail((resp) => {

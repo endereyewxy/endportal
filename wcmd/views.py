@@ -2,14 +2,12 @@ import re
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from wcmd.commands import WebCommand
 
 
 @require_POST
-@csrf_exempt  # TODO I am not sure whether csrf token should be required
 def wcmd_exec(request):
     # The command may have consecutive whitespaces, so we cannot simply `.split(' ')`.
     text = re.split(r'\s+', request.POST.get('_', '').strip())
