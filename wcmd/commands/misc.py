@@ -33,16 +33,16 @@ class Help(WebCommand):
             command = WebCommand.commands[command]
             # Generate a usage string, including every single parameter, no matter positional or keyword.
             order = ' '.join([('&lt;%s&gt;' if param.default is None else '[%s]') % param.name
-                              for param in command.order_params])
+                              for param in command.pos_params])
             named = ' '.join([('&lt;%s&gt;' if param.default is None else '[%s]') % ('--' + name + ' ' + name)
-                              for name, param in command.named_params.items()])
+                              for name, param in command.key_params.items()])
             msg = command.name + ' ' + order + ' ' + named + ': ' + command.desc
             # Then append detailed explanations of very parameter. Similar to the previous all-command-introduction, we
             # calculate the maximum length of all parameters' name first.
             # This zero is required since some commands do no have parameters, and `max` cannot handle empty lists.
             max_len = max([0] +
-                          [len(param.name) for param in command.order_params] +
-                          [len(name) for name in command.named_params])
+                          [len(param.name) for param in command.pos_params] +
+                          [len(name) for name in command.key_params])
 
             def add_msg(msg_, param):
                 msg_ += '\n    ' + param.name + ' ' * (max_len - len(param.name) + 1) + param.desc
@@ -50,9 +50,9 @@ class Help(WebCommand):
                     msg_ += '\n    ' + ' ' * (max_len + 1) + 'Default to be: ' + str(param.default)
                 return msg_
 
-            for param in command.order_params:
+            for param in command.pos_params:
                 msg = add_msg(msg, param)
-            for _, param in command.named_params:
+            for _, param in command.key_params:
                 msg = add_msg(msg, param)
             return msg
 
