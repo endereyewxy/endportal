@@ -1,119 +1,69 @@
-from django.contrib import auth
+import re
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
-
-class WebCommand:
-    commands = {}
-
-    def __init__(self, function):
-        self.parameters, self.description, self.function = {}, '', function
-
-    def __call__(self, *args, **kwargs):
-        return self.function(*args, **kwargs)
-
-    @staticmethod
-    def command(name, description):
-        def wrapper(w_cmd):
-            if not isinstance(w_cmd, WebCommand):
-                w_cmd = WebCommand(w_cmd)
-            w_cmd.description = description
-            WebCommand.commands[name] = w_cmd
-            return w_cmd
-
-        return wrapper
-
-
-class WebCommandParameter:
-    def __init__(self, description, transformer, required, default):
-        self.description, self.transformer, self.required, self.default = description, transformer, required, default
-
-    @staticmethod
-    def parameter(name, description, transformer=str, required=True, default=None):
-        def wrapper(w_cmd):
-            if not isinstance(w_cmd, WebCommand):
-                w_cmd = WebCommand(w_cmd)
-            w_cmd.parameters[name] = WebCommandParameter(description, transformer, required, default)
-            return w_cmd
-
-        return wrapper
-
-
-@WebCommand.command('login', 'Login current session.')
-@WebCommandParameter.parameter('username', 'Username')
-@WebCommandParameter.parameter('password', 'Password')
-def do_login(request, username, password):
-    user = auth.authenticate(request, username=username, password=password)
-    if user is None:
-        raise RuntimeError('Wrong username or password.')
-    auth.login(request, user)
-    msg = 'Ok, username: %s, email: %s.' % (user.username, user.email)
-    if user.is_superuser:
-        msg += '\nYou are a superuser.'
-    return msg
-
-
-@WebCommand.command('logout', 'Logout current session.')
-def do_logout(request):
-    if not request.user.is_authenticated:
-        return 'No user is attached to current session yet.'
-    else:
-        auth.logout(request)
-        return 'Ok.'
-
-
-@WebCommand.command('user-status', 'Check current sessions\'s user status.')
-def do_user_status(request):
-    user = request.user
-    if user.is_authenticated:
-        return 'Username: %s, email: %s.' % (user.username, user.email)
-    else:
-        return 'No user is attached to this session.'
-
-
-@WebCommand.command('help', 'Display help information.')
-@WebCommandParameter.parameter('command', 'The command of help information to display.', required=False)
-def do_help(request, command):
-    if command is None:
-        return '\n'.join([name + ': ' + cmd.description for name, cmd in WebCommand.commands.items()])
-    if command not in WebCommand.commands:
-        return HttpResponse(status=400, content='Command %s not found.' % command)
-    cmd = WebCommand.commands[command]
-    return command + ': ' + cmd.description + '\nParameters:\n' + '\n'.join(
-        ['&nbsp;&nbsp;&nbsp;&nbsp;' + name + ': ' + param.description for name, param in cmd.parameters.items()])
+from wcmd.commands import WebCommand
 
 
 @require_POST
-@csrf_exempt
+@csrf_exempt  # TODO I am not sure whether csrf token should be required
 def wcmd_exec(request):
-    command = request.POST.get('__command__')
-    if command not in WebCommand.commands:
-        return HttpResponse(status=400, content='Command %s not found.' % command)
-    command, kwargs = WebCommand.commands[command], {}
-    # The arguments presented by the user must match exactly the same as the command wants. No extra argument is
-    # allowed, and not missing either (except for those marked not required).
-    for key, val in request.POST.items():
-        # Skip the `command` argument since it represents the command name.
-        if key == '__command__':
-            continue
-        if key not in command.parameters:
-            return HttpResponse(status=400, content='Unrecognized parameter %s.' % key)
-        try:
-            kwargs[key] = command.parameters[key].transformer(val)
-        except ValueError or RuntimeError:
-            return HttpResponse(status=400, content='Parameter %s is of wrong type and rejected.' % key)
-    # Check if there are any missing arguments.
-    for key, param in command.parameters.items():
-        if key not in kwargs:
-            if param.required:
-                return HttpResponse(status=400, content='Parameter %s is required but not presented.' % key)
-            kwargs[key] = param.default
+    # The command may have consecutive whitespaces, so we cannot simply `.split(' ')`.
+    text = re.split(r'\s+', request.POST.get('_', '').strip())
+    # All possible failures are raised as WebCommand.Failed, so other exceptions will trigger 502 normally.
     try:
-        return HttpResponse(status=200, content=command(request, **kwargs))
-    except RuntimeError as e:
-        return HttpResponse(status=400, content=str(e))
+        if len(text) == 0 or text[0] not in WebCommand.commands:
+            raise WebCommand.Failed('No such command.')
+        command, args, kwargs = WebCommand.commands[text[0]], [], {}
+        # Parse arguments.
+        for i in range(1, len(text)):
+            # Ignore tokens starting with '--'.
+            # Instead of detecting the keyword of a parameter (i.e. --something), we detect the parameter value itself
+            # and determine whether it is a positional parameter or a keyword parameter.
+            if not text[i].startswith('--'):
+                if text[i - 1].startswith('--'):
+                    # This is a keyword parameter.
+                    name = text[i - 1][2:]
+                    if name not in command.named_params:
+                        raise WebCommand.Failed('Unknown keyword parameter %s of value "%s". ' % (name, text[i]))
+                    try:
+                        kwargs[name] = command.named_params[name].type(text[i])
+                    except ValueError:
+                        raise WebCommand.Failed(
+                            'Preprocessor of keyword parameter %s rejected value "%s".' % (name, text[i]))
+                else:
+                    # This is a positional parameter. The total count must not exceed.
+                    if len(args) >= len(command.order_params):
+                        raise WebCommand.Failed('Too much arguments.')
+                    param = command.order_params[len(args)]
+                    try:
+                        args.append(param.type(text[i]))
+                    except ValueError:
+                        raise WebCommand.Failed(
+                            'Preprocessor of positional parameter %s rejected value "%s".' % (param.name, text[i]))
+        # If there are any positional parameters missing, use the default ones. If some parameter has no default value
+        # (i.e. it is required), raise an error.
+        for i in range(len(args), len(command.pos_params)):
+            param = command.pos_params[i]
+            if param.default is None:
+                raise WebCommand.Failed('Positional parameter %s is required but not given.' % param.name)
+            args.append(param.default)
+        for name, param in command.key_params.items():
+            if name not in kwargs:
+                if param.default is None:
+                    raise WebCommand.Failed('Keyword parameter %s is required but not given.' % name)
+                kwargs[name] = param.default
+        # Execute the command.
+        resp = command(request, *args, **kwargs)
+        # Use a single space as default if the command returns nothing. The space is needed because the front-end can
+        # not correctly render empty strings.
+        return HttpResponse(status=200, content=resp or ' ')
+    except WebCommand.Failed as e:
+        # Catch command failures, let other errors go 502.
+        return HttpResponse(status=400, content=e.message)
 
 
 @require_GET

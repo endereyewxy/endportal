@@ -23,8 +23,7 @@
     <div class="mb-3"></div>
     <form class="mb-3">
         <div class="input-group mb-3">
-            <input type="text" class="form-control text-white bg-dark" aria-label="指令"
-                   pattern="[-\w]+(\s+-[-\w]+\s+[-\w]+)*" required>
+            <input type="text" class="form-control text-white bg-dark" aria-label="指令" required>
             <div class="input-group-append">
                 <button class="btn btn-outline-light" type="submit"><i class="fa fa-terminal"></i></button>
             </div>
@@ -34,21 +33,28 @@
 </div>
 <script type="text/javascript">
     $(document).ready(() => {
-        const paragraphs =
-            (text) => `<p><span>&nbsp;</span>` + text.replace(/\n/g, '</p><p><span>&nbsp;</span>') + '</p>';
+        const paragraphs = (ico, cmd, txt) => {
+            ico = ico ? 'fa fa-check' : 'fa fa-times';
+            txt = txt.replace(/\n/g, '</p><p><span>&nbsp;</span>').replace(/\s/g, '&nbsp;');
+            return `<p class="command"><span><i class="${ico}"></i></span>${cmd}</p><p><span>&nbsp;</span>${txt}</p>`;
+        };
+        const switchBtnState = () => {
+            const btn = $('form button'), classes = 'spinner-border spinner-border-sm';
+            btn[0].hasAttribute('disabled')
+                ? btn.removeAttr('disabled').html(btn.children('.sr-only').html())
+                : btn.attr('disabled', 'disabled')
+                    .html(`<span class="${classes}"></span><span class="sr-only">${btn.html()}</span>`);
+        };
         $('form').submit((evt) => {
             evt.preventDefault();
-            let text = $('input').val().trim().replace(/\s+/g, ' ').split(' '), payload = {__command__: text[0]};
-            for (let i = 1; i < text.length; i += 2) {
-                payload[text[i].slice(1)] = text[i + 1];
-            }
-            $.post("{% url 'wcmd-exec' %}", payload, (resp) => {
-                $(`<p class="command"><span><i class="fas fa-check"></i></span>${text.join(' ')}</p>` + paragraphs(resp))
-                    .prependTo($('.response'));
+            const command = $('input').val();
+            switchBtnState();
+            $.post("{% url 'wcmd-exec' %}", {_: command}, (resp) => {
+                switchBtnState();
+                $(paragraphs(true, command, resp)).prependTo($('.response'));
             }).fail((resp) => {
-                resp = resp.responseText;
-                $(`<p class="command"><span><i class="fas fa-times"></i></span>${text.join(' ')}</p>` + paragraphs(resp))
-                    .prependTo($('.response'));
+                switchBtnState();
+                $(paragraphs(false, command, resp.responseText || 'Network failed.')).prependTo($('.response'));
             });
         });
     });
