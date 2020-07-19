@@ -75,7 +75,9 @@
                     </button>
                     <div class="dropdown-menu">
                         {% if request.user.is_superuser %}
-                            <a class="dropdown-item" href="{% url 'blog-publish' %}"><i class="fas fa-plus">&nbsp;添加</i></a>
+                            <a class="dropdown-item" href="{% url 'blog-publish' %}">
+                                <i class="fas fa-plus">&nbsp;添加</i>
+                            </a>
                             {% if id is not None %}
                                 <a class="dropdown-item"
                                    href="{% url 'blog-publish' %}?id={{ id }}">
@@ -158,6 +160,7 @@
             crossorigin="anonymous"></script>
     <script src="{% static 'js/component-animations.min.js' %}"></script>
 {% else %}
+    {# In blog-content.html `smoothScoll` is used, so define a default function when animations are disabled. #}
     <script type="text/javascript">
         const smoothScroll = (position) => document.documentElement.scrollTop = position;
     </script>

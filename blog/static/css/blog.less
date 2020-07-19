@@ -114,10 +114,12 @@
   }
 }
 
+// Remove horizontal scrollbar which may appear when page transition animations are playing.
 body {
   overflow-x: hidden;
 }
 
+// Remove the ugly triangle aside of dropboxes.
 .dropdown-toggle::after {
   content: none !important;
 }
@@ -126,6 +128,7 @@ body {
   height: 3.5rem;
 }
 
+// Leave plenty of space to display navigation bar.
 .container-fluid > .row:first-child {
   margin-top: 4.5rem;
 }
@@ -134,6 +137,7 @@ body {
   border-radius: 0;
 }
 
+// Remove default list item icons, replace them later with custom ones.
 .sidebar {
   ul {
     list-style: none;
@@ -159,6 +163,7 @@ body {
   }
 }
 
+// Remove blue text and underlines of links.
 .sidebar .card li, .breadcrumb-item, .list-group-item-action {
   > a {
     text-decoration: none;
@@ -172,10 +177,12 @@ body {
 }
 
 .markdown-body {
+  // Make the table width 100%.
   table {
     display: table !important;
   }
 
+  // Center images and give rounded corners to make them less sharp.
   img {
     border-radius: 5px;
     left: 50%;
@@ -185,10 +192,12 @@ body {
 }
 
 .codehilitetable {
+  // Remove borders of code areas.
   tr, td {
     border: none !important;
   }
 
+  // Remove the spacing between line numbers and codes.
   td {
     padding: 0 !important;
   }

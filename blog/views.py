@@ -57,7 +57,7 @@ def get_universal_context(path, sub_dir=True):
             # Ignore articles
             if path + '/' + sub_path != blog.publish_path:
                 subd.add(sub_path)
-    # The front-end template can not recognize empty sets, so we change them into nones.
+    # The front-end template can not recognize empty sets, so we change them into none values.
     if len(subd) == 0:
         subd = None
     # Parse requested path. If the path is empty, return an empty string instead.
@@ -65,7 +65,6 @@ def get_universal_context(path, sub_dir=True):
         href, path = '', path.split('/')
         for i in range(len(path)):
             href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
-
     return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path, 'subd': subd}
 
 
@@ -87,21 +86,19 @@ def blog_to_dict(blog, process_content=True):
     if blog['content_type'] == 'markdown':
         blog['content_text'] = markdown.convert(blog['content_text'])
         # For markdowns, the only thing to do is to generate a menu list.
-        # In order to do this, we collect all <h2> and <h3> fragments and their ids. The <h2> will be the outer
-        # layer, while <h3> will be the inner layer. Too much layers will cause visual inconvenience so we have at
-        # most two.
+        # In order to do this, we collect all <h2> and <h3> fragments and their ids. The <h2> will be the outer layer,
+        # while <h3> will be the inner layer. Too much layers will cause visual inconvenience so we have at most two.
         # We do not use the official markdown TOC plugin since it can not customize the number of layers we wanted.
         blog['content_menu'] = []
         for header in re.finditer(r'<h([23])\s+id="([^"]+)">(.+)</h', blog['content_text']):
-            # Group one is the header type (i.e. <h2> or <h3>), group two and three are the id and title,
-            # respectively.
+            # Group one is the header type (i.e. <h2> or <h3>), group two and three are the id and title, respectively.
             pair = (header.group(3), header.group(2))
             if header.group(1) == '2':
                 blog['content_menu'].append(pair)
             else:
                 if len(blog['content_menu']) != 0 and blog['content_menu'][-1][0] is None:
-                    # If the last item in the menu is already a list, all we have to do is to append the current 
-                    # <h3> to it.
+                    # If the last item in the menu is already a list, all we have to do is to append the current <h3> to
+                    # it.
                     blog['content_menu'][-1][1].append(pair)
                 else:
                     blog['content_menu'].append((None, [pair]))
@@ -152,7 +149,7 @@ def content(request, path):
 @login_required()
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
-@csrf_exempt
+@csrf_exempt  # the file upload plugin does not support csrf, so disable it
 def add_img(request):
     # Validate the images first, if any of them is invalid, the whole batch will not be saved.
     for image in request.FILES.getlist('file_data'):
@@ -168,10 +165,9 @@ def add_img(request):
 
 @require_GET
 def indices(request):
-    # Unquote possible Chinese characters.
     title, tag = unquote(request.GET.get('title', '')), unquote(request.GET.get('tag', ''))
-    # The breadcrumb part needs extra handling.
     context = get_universal_context('', False)
+    # The breadcrumb part needs extra handling.
     context['path'] = [('#', '搜索')]
     query_set = Blog.objects.filter(content_name__icontains=title, content_tags__contains=tag).order_by('-publish_date')
     put_page_info(request, query_set, context)
@@ -187,6 +183,7 @@ def indices(request):
 @login_required()
 @user_passes_test(lambda u: u.is_superuser)
 def publish(request):
+    # Check the request method to distinguish between page requests and actual publishes.
     if request.method == 'GET':
         # The breadcrumb part needs extra handling, similar to indices.
         context = get_universal_context('', False)
@@ -221,4 +218,4 @@ def publish(request):
             if field.name != 'id':
                 blog.__setattr__(field.name, request.POST.get(field.name, ''))
         blog.save()
-        return redirect('blog-content', path=blog.publish_path + '/')  # The trailing slash is vital
+        return redirect('blog-content', path=blog.publish_path + '/')  # the trailing slash is vital
