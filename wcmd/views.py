@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST, require_GET
 from wcmd.commands import WebCommand
 
 
+# TODO add a collectstatic command
 @require_POST
 def wcmd_exec(request):
     # The command may have consecutive whitespaces, so we cannot simply `.split(' ')`.

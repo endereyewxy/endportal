@@ -125,7 +125,7 @@ const drawNet = (function (starDensity,
     return create;
 })(
     0.000045,
-    0.000005,
+    0.0001,
     0.125,
     100,
     550
