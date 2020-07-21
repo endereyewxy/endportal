@@ -17,11 +17,26 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-<div class="container">
+<div class="card shadow" style="position:fixed;left:3rem;top:3rem">
+    {# TODO make this draggable. #}
+    <div class="card-body">
+        <form>
+            <div class="form-group">
+                <label for="search-src-user">用户ID</label>
+                <input id="search-src-user" type="text" name="src_user" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="search-category">类别</label>
+                <input id="search-category" type="text" name="category" class="form-control" required>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="container" style="margin-top:3rem">
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">#</th>
+            <th scope="col">用户ID</th>
             <th scope="col">用户名</th>
             <th scope="col">IP</th>
             <th scope="col">时间</th>
@@ -33,10 +48,10 @@
         <tbody>
         {% for log in logs %}
             <tr>
-                <th scope="row">{{ forloop.counter }}</th>
                 <td>{{ log.src_user }}</td>
+                <td>{{ log.src_name }}</td>
                 <td>{{ log.src_addr }}</td>
-                <td>{{ log.src_time }}</td>
+                <td>{{ log.src_time | date:'Y-m-d H:i:s' }}</td>
                 <td>{{ log.category }}</td>
                 <td>{{ log.behavior }}</td>
                 <td>{{ log.detailed }}</td>
@@ -44,6 +59,9 @@
         {% endfor %}
         </tbody>
     </table>
+    <div class="w-100 d-flex">
+        {% include 'component-paginator.html' %}
+    </div>
 </div>
 </body>
 </html>

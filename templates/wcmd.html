@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>网络控制台</title>
+    {# TODO change wcui.css to wcmd.css. #}
     <link rel="stylesheet" href="{% static 'css/wcui.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
           integrity="sha512-rO2SXEKBSICa/AfyhEK5ZqWFCOok1rcgPYfGOqtX35OyiraBg6Xa4NnBJwXgpIRoXeWjcAmcQniMhp22htDc6g=="
@@ -49,6 +50,7 @@
         $('form').submit((evt) => {
             evt.preventDefault();
             const command = $('input[name=_]').val();
+            // TODO #goto fake command.
             switchBtnState();
             $.post("{% url 'wcmd-exec' %}", $('form').serializeArray(), (resp) => {
                 switchBtnState();
