@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.urls import include, path
 
+from endportal import views
+
 urlpatterns = [
+    path('', views.index),
     path('blog/', include('blog.urls')),
     path('logs/', include('logs.urls')),
     path('wcmd/', include('wcmd.urls')),
