@@ -29,63 +29,69 @@ markdown = Markdown(
     slugify=slugify)
 
 
-def get_universal_context(path, sub_dir=True):
+def get_universal_context(path, sub_dir):
     """
-    Get category list, tags, recent articles and subdirectories which are used in any circumstances. Will also split
-    and process path string into a list consisting of link href and title, in order to generate information required
-    by breadcrumb.
-    :param path: The path string.
-    :param sub_dir: If subdirectory enabled.
-    :return A default context.
+    Fetches context components which are available in all kinds of blog pages. Including major categories, tags, recent
+    articles, subdirectories and split access path.
+    :param path: Access path string.
+    :param sub_dir: Whether to process subdirectories or not.
+    :return Default context dictionary.
     :rtype dict
     """
-    # Collect categories (the first directory of publish path) and tags.
-    categories, tags = set(), set()
+    # We use sets to prevent duplication.
+    categories, tags, subdirectories = set(), set(), set()
+    # We collect major categories and tags first.
+    # A major category is the first part of access path string after splitting it by slashes.
     for blog in Blog.objects.all().only('publish_path', 'content_tags'):
         categories.add(blog.publish_path.split('/')[0])
         for tag in blog.content_tags.split(','):
             tags.add(tag)
-    # Collect 5 most recent articles.
-    query_set = Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')
-    query_set = query_set[:min(5, len(query_set))]
-    recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in query_set]
-    # Get subdirectories if the current path is not root.
-    subd = set()
+    # We then collect recent articles.
+    # We do not need all the information of those articles, just access path, publish date and title is enough.
+    # TODO make the number of recent articles configurable.
+    recent = Blog.objects.all().order_by('-publish_date').only('publish_path', 'publish_date', 'content_name')
+    recent = recent[:min(5, len(recent))]
+    recent = [(blog.content_name, blog.publish_date, blog.publish_path) for blog in recent]
+    # We then get subdirectories if the current path is not root, since the subdirectories of root path is identical to
+    # major categories.
     if sub_dir and path != '':
         for blog in Blog.objects.filter(publish_path__startswith=path):
+            # Ignore the current path.
             if blog.publish_path == path:
                 continue
             sub_path = blog.publish_path[len(path) + 1:].split('/')[0]
-            # Ignore articles
+            # Ignore articles. We only want directories.
             if path + '/' + sub_path != blog.publish_path:
-                subd.add(sub_path)
-    # The front-end template can not recognize empty sets, so we change them into none values.
-    if len(subd) == 0:
-        subd = None
-    # Parse requested path. If the path is empty, return an empty string instead.
-    if len(path) > 0:
+                subdirectories.add(sub_path)
+    # The front-end template can not recognize empty sets, so we change them into nones.
+    subdirectories = subdirectories or None
+    # Parse requested access path. If the path is empty, leave it as an empty string instead.
+    if path != '':
         href, path = '', path.split('/')
         for i in range(len(path)):
             href, path[i] = href + path[i] + '/', (href + path[i] + '/', path[i])
-    return {'cate': categories, 'tags': tags, 'rect': recent, 'path': path, 'subd': subd}
+    return {'cate': categories, 'tags': tags, 'rect': recent, 'subd': subdirectories, 'path': path}
 
 
 def blog_to_dict(blog, process_content=True):
     """
-    Get a dictionary containing data of a given blog object. Special fields such as urls and tags are processed into
-    list.
+    Transforms a blog object into a dictionary. Special fields such as urls and tags are processed into lists.
     :param blog: Blog object.
-    :param process_content: Whether to process the content field into HTML and add menu field.
-    :return: dict
+    :param process_content: Whether to process the content field into HTML.
+    :return: Dictionary form of the given blog.
+    :rtype dict
     """
     blog = model_to_dict(blog)
+    # Distinguish empty urls.
     if blog['content_urls'] != '':
         blog['content_urls'] = [tuple(url.strip().split(':::')) for url in blog['content_urls'].split('\n')]
+    else:
+        blog['content_urls'] = None
     blog['content_tags'] = blog['content_tags'].split(',')
     if not process_content:
         return blog
     # Now, we should handle content text.
-    # Enumerate every content type that is supported, raise a Http404 error if none of them matches.
+    # Enumerate every content type that is supported, trigger a 404 error if none of them matches.
     if blog['content_type'] == 'markdown':
         blog['content_text'] = markdown.convert(blog['content_text'])
         # For markdowns, the only thing to do is to generate a menu list.
@@ -107,15 +113,24 @@ def blog_to_dict(blog, process_content=True):
                     blog['content_menu'].append((None, [pair]))
         return blog
 
+    # Unrecognizable content type.
     raise Http404()
 
 
 @require_GET
 def content(request, path):
+    """
+    Blog content page: accepts an access path, and returns the corresponding page.
+    If the path has a matching blog, render that blog.
+    If the path has not matching blog, but it is the prefix of one or more blogs (i.e. there exists blogs under this
+    directory), render an index page.
+    Otherwise, trigger a 404 error.
+    """
     path = unquote('/'.join(path[:-1].split('/')))  # remove the trailing slash
     # Add log even if the request failed.
     Log.new_log(request, 'blog', 'access', path)
-    context = get_universal_context(path)
+    context = get_universal_context(path, True)
+    # Assume that there is a matching blog.
     try:
         context.update(blog_to_dict(Blog.objects.get(publish_path=path)))
         return render(request, 'blog-content.html', context)
@@ -136,9 +151,13 @@ def content(request, path):
 
 @require_GET
 def indices(request):
+    """
+    Search page: accepts a keyword and search for it in titles and tags. Renders the search result as an index page.
+    """
     keyword = unquote(request.GET.get('keyword', ''))
     # Add log in all cases.
     Log.new_log(request, 'blog', 'search', keyword)
+    # We should disable subdirectories since this is not a real access path.
     context = get_universal_context('', False)
     # The breadcrumb part needs extra handling.
     context['path'] = [('#', '搜索')]
@@ -157,14 +176,21 @@ def indices(request):
 @login_required()
 @user_passes_test(lambda u: u.is_superuser)
 def publish(request):
+    """
+    Publish page: Simply renders the publish form if the request method is GET, or actually publishes (creates or
+    modifies) a blog if the request method if POST.
+    :param request:
+    :return:
+    """
     # Check the request method to distinguish between page requests and actual publishes.
     if request.method == 'GET':
-        # The breadcrumb part needs extra handling, similar to indices.
         context = get_universal_context('', False)
+        # The breadcrumb part needs extra handling, similar to indices.
         context['path'] = [('#', '发布')]
         # Add field 'stit' so that the edit option will not appear in the top-right menu again.
         context['stit'] = ''
-        # Get an existing blog from database, if an id is given. Otherwise, this is creation, do nothing.
+        # Get an existing blog from database and fill out the default values, if an `id` is given. Otherwise, this is
+        # creation, nothing to be done.
         if 'id' in request.GET:
             try:
                 context.update(model_to_dict(Blog.objects.get(id=int(request.GET.get('id')))))
