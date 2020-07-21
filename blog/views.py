@@ -14,6 +14,7 @@ from django.views.decorators.http import require_GET
 from markdown import Markdown
 
 from blog.models import Blog
+from logs.models import Log
 
 markdown = Markdown(
     extensions=['markdown.extensions.extra', 'markdown.extensions.toc', 'markdown.extensions.codehilite', 'arithmatex'],
@@ -128,6 +129,8 @@ def put_page_info(request, query_set, context):
 @require_GET
 def content(request, path):
     path = unquote('/'.join(path[:-1].split('/')))  # remove the trailing slash
+    # Add log even if the request failed.
+    Log.new_log(request, 'blog', 'access', path)
     context = get_universal_context(path)
     try:
         context.update(blog_to_dict(Blog.objects.get(publish_path=path)))
@@ -150,6 +153,8 @@ def content(request, path):
 @require_GET
 def indices(request):
     keyword = unquote(request.GET.get('keyword', ''))
+    # Add log in all cases.
+    Log.new_log(request, 'blog', 'search', keyword)
     context = get_universal_context('', False)
     # The breadcrumb part needs extra handling.
     context['path'] = [('#', '搜索')]
@@ -212,4 +217,6 @@ def publish(request):
             if field.name != 'id':
                 blog.__setattr__(field.name, request.POST.get(field.name, ''))
         blog.save()
+        # Since publishing blogs require certain privileges, we only log if a publish succeeded.
+        Log.new_log(request, 'blog', 'publish', str(blog.id))
         return redirect('blog-content', path=blog.publish_path + '/')  # the trailing slash is vital

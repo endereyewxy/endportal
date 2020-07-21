@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST, require_GET
 
+from logs.models import Log
 from wcmd.commands import WebCommand
 
 
@@ -12,6 +13,9 @@ from wcmd.commands import WebCommand
 def wcmd_exec(request):
     # The command may have consecutive whitespaces, so we cannot simply `.split(' ')`.
     text = re.split(r'\s+', request.POST.get('_', '').strip())
+    # Some commands require special privileges, but technically everyone can access the web commandline page, so we log
+    # everything.
+    Log.new_log(request, 'wcmd', 'execute', text)
     # All possible failures are raised as WebCommand.Failed, so other exceptions will trigger 502 normally.
     try:
         if len(text) == 0 or text[0] not in WebCommand.commands:
