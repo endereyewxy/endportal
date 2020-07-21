@@ -14,6 +14,7 @@ from django.views.decorators.http import require_GET
 from markdown import Markdown
 
 from blog.models import Blog
+from endportal import utils
 from logs.models import Log
 
 markdown = Markdown(
@@ -109,23 +110,6 @@ def blog_to_dict(blog, process_content=True):
     raise Http404()
 
 
-def put_page_info(request, query_set, context):
-    """
-    Paginate a query set, get a slice of it (depending on the 'page' parameter of the request) and put it into the
-    `blog` field of context. The `page` and `pcnt` field will also be updated.
-    :param request: Request object.
-    :param query_set: Result to be paged.
-    :param context: Context to be updated.
-    """
-    try:
-        page = int(request.GET.get('page', 1))
-    except ValueError:
-        raise Http404()  # Bad request if the parameter is not an integer
-    context['blog'] = [blog_to_dict(blog, False) for blog in query_set[(page - 1) * 5:page * 5]]
-    context['page'] = page
-    context['pcnt'] = (len(query_set) + 4) // 5
-
-
 @require_GET
 def content(request, path):
     path = unquote('/'.join(path[:-1].split('/')))  # remove the trailing slash
@@ -143,7 +127,7 @@ def content(request, path):
         # blogs online.
         if len(query_set) == 0 and path != '':
             raise Http404()
-        put_page_info(request, query_set, context)
+        context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
         # Because the template can not distinguish between normal index pages and search pages, we have to provide the
         # url for page navigation.
         context['rurl'] = request.path + '?'
@@ -161,7 +145,7 @@ def indices(request):
     query_set = Blog.objects \
         .filter(Q(content_name__icontains=keyword) | Q(content_tags__icontains=keyword)) \
         .order_by('-publish_date')
-    put_page_info(request, query_set, context)
+    context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
     # This parameter is used to fill out the default value of the search bar.
     context['skey'] = keyword
     # Because the template can not distinguish between normal index pages and search pages, we have to provide the url
