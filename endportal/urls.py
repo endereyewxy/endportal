@@ -17,5 +17,6 @@ from django.urls import include, path
 
 urlpatterns = [
     path('blog/', include('blog.urls')),
+    path('logs/', include('logs.urls')),
     path('wcmd/', include('wcmd.urls')),
 ]
