@@ -143,6 +143,7 @@ def content(request, path):
         if len(query_set) == 0 and path != '':
             raise Http404()
         context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
+        context['blog'] = [blog_to_dict(blog, False) for blog in context['blog']]
         # Because the template can not distinguish between normal index pages and search pages, we have to provide the
         # url for page navigation.
         context['rurl'] = request.path + '?'
@@ -179,8 +180,6 @@ def publish(request):
     """
     Publish page: Simply renders the publish form if the request method is GET, or actually publishes (creates or
     modifies) a blog if the request method if POST.
-    :param request:
-    :return:
     """
     # Check the request method to distinguish between page requests and actual publishes.
     if request.method == 'GET':

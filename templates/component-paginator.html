@@ -1,0 +1,44 @@
+<nav style="margin: auto">
+    <ul class="pagination">
+        {% ifequal page 1 %}
+            <li class="page-item disabled">
+                <span class="page-link"><span aria-hidden="true">&laquo;</span></span>
+            </li>
+        {% else %}
+            <li class="page-item">
+                <a class="page-link" href="{{ rurl }}page={{ page | add:"-1" }}">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% endifequal %}
+        {% comment %}
+            This with block creates a string with length equal to the number of pages, so we can use forloop.counter to
+            iterate over those numbers. This is equivalent to the for-range syntax in Python.
+        {% endcomment %}
+        {% with range='.'|center:pcnt %}
+            {% for _ in range %}
+                {% ifequal forloop.counter page %}
+                    <li class="page-item active"><span class="page-link">{{ forloop.counter }}</span></li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ rurl }}page={{ forloop.counter }}">
+                            {{ forloop.counter }}
+                        </a>
+                    </li>
+                {% endifequal %}
+            {% endfor %}
+        {% endwith %}
+        {% ifequal page pcnt %}
+            <li class="page-item disabled">
+                <span class="page-link"><span aria-hidden="true">&raquo;</span></span>
+            </li>
+        {% else %}
+            <li class="page-item">
+                <a class="page-link" href="{{ rurl }}page={{ page | add:"1" }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% endifequal %}
+        {# TODO add page limit selector. #}
+    </ul>
+</nav>

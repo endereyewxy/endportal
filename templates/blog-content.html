@@ -23,16 +23,26 @@
         {% sidecard '相关连接' %}
             <ul>
                 {% for title, href in content_urls %}
-                    {# Disabled smooth transition for external links. #}
-                    <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
+                    {% comment %}
+                        Determine whether this link is an external link or insite link. We know for sure that insite
+                        links starts with at least a slash and definitely not `http`, so we detect if the first four
+                        characters of the url is `http` to decide whether it is an insite link.
+                        We need to know this so that we can add smooth transitions to blog navigations.
+                    {% endcomment %}
+                    {% if href|slice:":4" == 'http' %}
+                        <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
+                    {% else %}
+                        <li><a href="{{ href }}">{{ title }}</a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         {% endsidecard %}
     {% endifnotequal %}
 {% endblock %}
 {% block content %}
-    <div class="card-body markdown-body">{{ content_text | safe }}</div>
-    {# We have to put this script here to reload it after smooth transitions. #}
+    <div class="card-body markdown-body">
+        {{ content_text | safe }}
+    </div>
     <script type="text/javascript">
         $(document).ready(() => renderMathInElement(document.body))
     </script>

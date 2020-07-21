@@ -1,23 +1,30 @@
 {% extends 'blog.html' %}
 {% load blog %}
-{# The title will be the last directory of the path, but if the path is empty (i.e. root), display a default one. #}
 {% block title %}
-    {% ifequal path '' %}个人博客{% else %}{{ path | last | last }}{% endifequal %}
+    {% ifequal path '' %}
+        个人博客
+    {% else %}
+        {{ path | last | last }}
+    {% endifequal %}
 {% endblock %}
 {% block content %}
     <div class="list-group list-group-flush mb-3">
         {% for blog in blog %}
             <div class="card list-group-item list-group-item-action">
-                <a href="/blog/{{ blog.publish_path }}/" class="row no-gutters stretched-link">
+                <a href="{% url 'blog-content' path=blog.publish_path|add:'/' %}" class="row no-gutters stretched-link">
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
                         {% comment %}
-                        We declared the whole card to be `stretched-link`, so that we could click anywhere inside the
-                        card to navigate to the corresponding article. But this also causes a problem: The
-                        `stretched-link` class will extend every <a> tag in its content, and if there are multiple ones,
-                        it can trigger a render issue. So our blog tags cannot have links on them.
+                            We declared the whole card to be `stretched-link`, so that we could click anywhere inside
+                            the card to navigate to the corresponding article. But this also causes a problem: The
+                            `stretched-link` class will extend every <a> tag in its content, and if there are multiple
+                            ones, it can trigger a render issue. So our blog tags cannot have links on them.
                         {% endcomment %}
-                        <div class="mb-3">{% for tag in blog.content_tags %}{% tag tag nolink %}{% endfor %}</div>
+                        <div class="mb-3">
+                            {% for tag in blog.content_tags %}
+                                {% tag tag nolink %}
+                            {% endfor %}
+                        </div>
                         <p>{{ blog.content_desc }}</p>
                         {% date blog.publish_date blog.publish_desc %}
                     </div>
@@ -25,47 +32,5 @@
             </div>
         {% endfor %}
     </div>
-    <nav style="margin: auto">
-        <ul class="pagination">
-            {% ifequal page 1 %}
-                <li class="page-item disabled">
-                    <span class="page-link"><span aria-hidden="true">&laquo;</span></span>
-                </li>
-            {% else %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ rurl }}page={{ page | add:"-1" }}">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-            {% endifequal %}
-            {% comment %}
-            This with block creates a string with length equal to the number of pages, so we can use forloop.counter to
-            iterate over those numbers. This is equivalent to the for-range syntax in Python.
-            {% endcomment %}
-            {% with range='.'|center:pcnt %}
-                {% for _ in range %}
-                    {% ifequal forloop.counter page %}
-                        <li class="page-item active"><span class="page-link">{{ forloop.counter }}</span></li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ rurl }}page={{ forloop.counter }}">
-                                {{ forloop.counter }}
-                            </a>
-                        </li>
-                    {% endifequal %}
-                {% endfor %}
-            {% endwith %}
-            {% ifequal page pcnt %}
-                <li class="page-item disabled">
-                    <span class="page-link"><span aria-hidden="true">&raquo;</span></span>
-                </li>
-            {% else %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ rurl }}page={{ page | add:"1" }}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            {% endifequal %}
-        </ul>
-    </nav>
+    {% include 'component-paginator.html' %}
 {% endblock %}

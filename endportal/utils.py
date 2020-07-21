@@ -16,4 +16,4 @@ def paginate(request, query_set):
         page, limit = int(request.GET.get('page', 1)), int(request.GET.get('limit', 5))
     except ValueError:
         raise Http404
-    return page, limit, len(query_set) // limit, query_set[(page - 1) * limit: page * limit]
+    return page, limit, (len(query_set) + limit - 1) // limit, query_set[(page - 1) * limit: page * limit]
