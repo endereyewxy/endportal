@@ -10,6 +10,6 @@ def index(request):
     If the user is a superuser, an index page of all different apps is presented, for he has access to go anywhere.
     """
     if not request.user.is_authenticated:
-        return redirect('blog-content', path='/')
+        return redirect('blog-content', path='')
     if request.user.is_superuser:
         return render(request, 'index.html')

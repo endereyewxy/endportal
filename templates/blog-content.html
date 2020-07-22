@@ -2,7 +2,8 @@
 {% load blog %}
 {% block sidecards %}
     {% sidecard content_name %}
-        <p>{{ content_desc }}</p>{% date publish_date publish_desc %}
+        <p>{{ content_desc }}</p>
+        {% publish_date publish_date publish_desc %}
     {% endsidecard %}
     {% sidecard '文章目录' %}
         <ul>

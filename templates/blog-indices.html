@@ -1,5 +1,6 @@
 {% extends 'blog.html' %}
 {% load blog %}
+{% load components %}
 {% block title %}
     {% ifequal path '' %}
         个人博客
@@ -22,15 +23,15 @@
                         {% endcomment %}
                         <div class="mb-3">
                             {% for tag in blog.content_tags %}
-                                {% tag tag nolink %}
+                                {% blog_tag tag nolink %}
                             {% endfor %}
                         </div>
                         <p>{{ blog.content_desc }}</p>
-                        {% date blog.publish_date blog.publish_desc %}
+                        {% publish_date blog.publish_date blog.publish_desc %}
                     </div>
                 </a>
             </div>
         {% endfor %}
     </div>
-    {% include 'component-paginator.html' %}
+    {% paginator page plim pcnt %}
 {% endblock %}

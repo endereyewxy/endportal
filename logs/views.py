@@ -33,7 +33,6 @@ def logs(request):
     except ValueError:
         raise Http404()
     context = {
-        'rurl': request.get_full_path() + '?',
         'page': utils.paginate(request, query_set)[0],
         'plim': utils.paginate(request, query_set)[1],
         'pcnt': utils.paginate(request, query_set)[2],

@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 {% load static %}
 {% load blog %}
+{% load components %}
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}{{ content_name }}{% endblock %}</title>
+    <title>
+        {% block title %}
+            {{ content_name }}
+        {% endblock %}
+    </title>
     <link rel="stylesheet" href="{% static 'css/blog.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
           integrity="sha512-rO2SXEKBSICa/AfyhEK5ZqWFCOok1rcgPYfGOqtX35OyiraBg6Xa4NnBJwXgpIRoXeWjcAmcQniMhp22htDc6g=="
@@ -46,48 +51,31 @@
 </head>
 <body>
 <div id="main">
-    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">
-        <a class="navbar-brand" href="/"><img src="{% static 'home.png' %}" alt="主页"></a>
-        <div class="collapse navbar-collapse">
-            <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
-                <div class="input-group mr-sm-2">
-                    <input type="text" name="keyword" value="{{ skey }}" class="form-control" placeholder="搜索"
-                           aria-label="搜索">
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-outline-info"><i class="fas fa-search"></i></button>
-                    </div>
+    {% navigator %}
+        <form class="form-inline" action="{% url 'blog-indices' %}" method="get">
+            <div class="input-group mr-sm-2">
+                <label>
+                    <input type="text" name="keyword" value="{{ skey }}" class="form-control" placeholder="搜索">
+                </label>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-info"><i class="fas fa-search"></i></button>
                 </div>
-            </form>
-            <ul class="navbar-nav mr-auto">
-                {% for category in cate %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'blog-content' path='' %}{{ category }}">{{ category }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-            {% if request.user.is_authenticated %}
-                <div class="dropdown">
-                    <button class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                        {{ request.user.username }}&nbsp;&laquo;{{ request.user.email }}&raquo;
-                    </button>
-                    <div class="dropdown-menu">
-                        {% if request.user.is_superuser %}
-                            <a class="dropdown-item" href="{% url 'blog-publish' %}">
-                                <i class="fas fa-plus">&nbsp;添加</i>
-                            </a>
-                            {% if id is not None %}
-                                <a class="dropdown-item"
-                                   href="{% url 'blog-publish' %}?id={{ id }}">
-                                    <i class="fas fa-pen">&nbsp;编辑</i>
-                                </a>
-                            {% endif %}
-                        {% endif %}
-                    </div>
-                </div>
+            </div>
+        </form>
+        {% links %}
+        {% for category in cate %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'blog-content' path='' %}{{ category }}">{{ category }}</a>
+            </li>
+        {% endfor %}
+        {% menus %}
+        {% if request.user.is_superuser %}
+            <a class="dropdown-item" href="{% url 'blog-publish' %}">添加</a>
+            {% if id is not None %}
+                <a class="dropdown-item" href="{% url 'blog-publish' %}?id={{ id }}">编辑</a>
             {% endif %}
-        </div>
-    </nav>
+        {% endif %}
+    {% endnavigator %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-1"></div>
@@ -126,13 +114,17 @@
                         {% for title, date, href in rect %}
                             <li class="mb-3">
                                 <a href="{% url 'blog-content' path='' %}{{ href }}/">{{ title }}</a>
-                                {% date date %}
+                                {% publish_date date %}
                             </li>
                         {% endfor %}
                     </ul>
                 {% endsidecard %}
                 {% sidecard '标签' %}
-                    <h4>{% for tag in tags %}{% tag tag %}{% endfor %}</h4>
+                    <h4>
+                        {% for tag in tags %}
+                            {% blog_tag tag %}
+                        {% endfor %}
+                    </h4>
                 {% endsidecard %}
             </div>
             <div class="col-8">
@@ -156,7 +148,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/smoothState.js/0.7.2/jquery.smoothState.min.js"
             integrity="sha512-PA88Ew5anBQLPlovdwOOMj+Ky0x+M6a6bDXYve4q+NDj17AJ37FwHT4Xo758ZQqYKLyvaYko27cQDQ5P/0kOJA=="
             crossorigin="anonymous"></script>
-    <script src="{% static 'js/component-animations.min.js' %}"></script>
+    <script src="{% static 'js/animations.min.js' %}"></script>
 {% else %}
     {# In blog-content.html `smoothScoll` is used, so define a default function when animations are disabled. #}
     <script type="text/javascript">

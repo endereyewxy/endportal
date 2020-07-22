@@ -144,9 +144,6 @@ def content(request, path):
             raise Http404()
         context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
         context['blog'] = [blog_to_dict(blog, False) for blog in context['blog']]
-        # Because the template can not distinguish between normal index pages and search pages, we have to provide the
-        # url for page navigation.
-        context['rurl'] = request.path + '?'
         return render(request, 'blog-indices.html', context)
 
 
@@ -168,9 +165,6 @@ def indices(request):
     context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
     # This parameter is used to fill out the default value of the search bar.
     context['skey'] = keyword
-    # Because the template can not distinguish between normal index pages and search pages, we have to provide the url
-    # for page navigation.
-    context['rurl'] = f'{request.path}?keyword={keyword}&'
     return render(request, 'blog-indices.html', context)
 
 
