@@ -12,7 +12,7 @@
             src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 </head>
 <body class="text-white bg-dark">
-<div class="container d-flex flex-column">
+<div class="container d-flex flex-column vh-100 font-monospace">
     <div class="mb-3"></div>
     <form class="mb-3">
         {% csrf_token %}
@@ -27,7 +27,7 @@
             </button>
         </div>
     </form>
-    <div class="response"></div>
+    <div class="response overflow-auto"></div>
 </div>
 </body>
 <script crossorigin="anonymous"

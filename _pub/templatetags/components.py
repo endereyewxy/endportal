@@ -94,7 +94,7 @@ class NavigatorNode(template.Node):
         else:
             html_user_menu = ''
         html = \
-            f'<style>nav.fixed-top+div{{margin-top:4.5rem}}</style>' \
+            f'<style>nav.fixed-top+div{{margin-top:5rem}}</style>' \
             f'<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow" style="height:3.5rem">' \
             f'    <div class="container-fluid">' \
             f'        <a class="navbar-brand no-smooth" href="/">' \
@@ -181,7 +181,7 @@ class FooterNode(template.Node):
     def render(self, context):
         return \
             f'<div class="footer flex-shrink-0">' \
-            f'    <hr style="margin:auto;margin-bottom:1rem;width:75vw">' \
+            f'    <hr style="margin:auto;margin-bottom:1rem;width:85vw">' \
             f'    <div class="text-center w-100">' \
             f'        <p>' \
             f'            <svg height="1.5rem" viewBox="0 0 24 24" width="1.5rem" xmlns="http://www.w3.org/2000/svg">' \
@@ -195,7 +195,7 @@ class FooterNode(template.Node):
             f'.319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>' \
             f'            </svg>' \
             f'            <a class="text-muted text-decoration-none align-middle" href="https://github.com/endereye">' \
-            f'                访问Github' \
+            f'                &nbsp;访问Github' \
             f'            </a>' \
             f'        </p>' \
             f'    </div>' \
