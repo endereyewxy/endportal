@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.db import models
 from ipware import get_client_ip
@@ -18,7 +18,7 @@ class Log(models.Model):
         Log.objects.create(
             src_user=request.user.id if request.user.is_authenticated else 0,
             src_addr=ip,
-            src_time=datetime.now(),
+            src_time=datetime.now(tz=timezone.utc),
             category=category,
             behavior=behavior,
             detailed=detailed

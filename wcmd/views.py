@@ -15,7 +15,7 @@ def wcmd_exec(request):
     text = re.split(r'\s+', request.POST.get('_', '').strip())
     # Some commands require special privileges, but technically everyone can access the web commandline page, so we log
     # everything.
-    Log.new_log(request, 'wcmd', 'execute', text)
+    Log.new_log(request, 'wcmd', 'execute', ' '.join(text))
     # All possible failures are raised as WebCommand.Failed, so other exceptions will trigger 502 normally.
     try:
         if len(text) == 0 or text[0] not in WebCommand.commands:

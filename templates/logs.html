@@ -14,11 +14,21 @@
 {% navigator %}
     <form action="{% url 'logs' %}" class="d-flex" method="get">
         <div class="input-group">
-            <input aria-label="" class="form-control" name="date_start" type="date">
-            <span class="input-group-text">-</span>
-            <input aria-label="" class="form-control" name="date_end" type="date">
+            <input aria-label="" class="form-control" name="src_time_s" type="date"
+                   value="{{ search.src_time_e | date:"Y-m-d" }}">
+            <span class="input-group-text">~</span>
+            <input aria-label="" class="form-control" name="src_time_e" type="date"
+                   value="{{ search.src_time_e | date:"Y-m-d" }}">
+            <span class="input-group-text">:</span>
+            <input aria-label="" class="form-control" min="0" name="src_user" placeholder="用户ID" type="number"
+                   value="{{ search.src_user }}">
             <span class="input-group-text">@</span>
-            <input aria-label="" class="form-control" name="keyword" placeholder="搜索" type="text" value="{{ skey }}">
+            <input aria-label="" class="form-control" name="src_addr" placeholder="IP地址" type="text"
+                   pattern="((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}"
+                   value="{{ search.src_addr }}">
+            <span class="input-group-text">#</span>
+            <input aria-label="" class="form-control" name="keyword" placeholder="关键词" type="text"
+                   value="{{ search.keyword }}">
             <button class="btn btn-outline-info" type="submit">
                 <svg class="bi bi-search" fill="currentColor" height="1em" viewBox="0 0 16 16" width="1em"
                      xmlns="http://www.w3.org/2000/svg">
