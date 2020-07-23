@@ -10,7 +10,7 @@
             integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
             src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 {% navigator %}
     <form action="{% url 'logs' %}" class="d-flex" method="get">
         <div class="input-group">
@@ -41,7 +41,7 @@
         </div>
     </form>
 {% endnavigator %}
-<div class="container mb-5">
+<div class="container flex-grow-1 mb-5">
     <div class="card shadow">
         <div class="card-body">
             <table class="table">

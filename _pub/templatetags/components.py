@@ -180,7 +180,7 @@ class PaginatorNode(template.Node):
 class FooterNode(template.Node):
     def render(self, context):
         return \
-            f'<div class="footer">' \
+            f'<div class="footer flex-shrink-0">' \
             f'    <hr style="margin:auto;margin-bottom:1rem;width:75vw">' \
             f'    <div class="text-center w-100">' \
             f'        <p>' \

@@ -25,7 +25,7 @@
             src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 </head>
 <body>
-<div id="main">
+<div class="d-flex flex-column min-vh-100" id="main">
     {% navigator %}
         <form action="{% url 'blog-indices' %}" method="get">
             <div class="input-group mr-sm-2">
@@ -56,7 +56,7 @@
             {% endif %}
         {% endif %}
     {% endnavigator %}
-    <div class="container-fluid">
+    <div class="container-fluid flex-grow-1">
         <div class="row">
             <div class="col-1"></div>
             <div class="col-10">
@@ -113,8 +113,8 @@
                 <div class="card shadow content">{% block content %}{% endblock %}</div>
             </div>
         </div>
-        {% footer %}
     </div>
+    {% footer %}
 </div>
 </body>
 <canvas style="position:fixed;z-index:-100;top:0;height:100vh;left:0;opacity:50%"></canvas>
