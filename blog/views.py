@@ -1,6 +1,5 @@
 import os
 import re
-from datetime import datetime
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -142,7 +141,7 @@ def content(request, path):
         # blogs online.
         if len(query_set) == 0 and path != '':
             raise Http404()
-        context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
+        context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, 10, query_set)
         context['blog'] = [blog_to_dict(blog, False) for blog in context['blog']]
         return render(request, 'blog-indices.html', context)
 
@@ -162,7 +161,7 @@ def indices(request):
     query_set = Blog.objects \
         .filter(Q(content_name__icontains=keyword) | Q(content_tags__icontains=keyword)) \
         .order_by('-publish_date')
-    context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, query_set)
+    context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, 10, query_set)
     # This parameter is used to fill out the default value of the search bar.
     context['skey'] = keyword
     return render(request, 'blog-indices.html', context)
@@ -189,11 +188,6 @@ def publish(request):
                 context.update(model_to_dict(Blog.objects.get(id=int(request.GET.get('id')))))
             except Blog.DoesNotExist or ValueError:
                 raise Http404()
-        else:
-            # Set a default name to get rid of the ugly title
-            context['content_name'] = '新增'
-            # Set default date to current date
-            context['publish_date'] = datetime.now()
         return render(request, 'blog-publish.html', context)
 
     if request.method == 'POST':

@@ -32,11 +32,7 @@ def logs(request):
             query_set = query_set.filter(category=request.GET.get('category'))
     except ValueError:
         raise Http404()
-    context = {
-        'page': utils.paginate(request, query_set)[0],
-        'plim': utils.paginate(request, query_set)[1],
-        'pcnt': utils.paginate(request, query_set)[2],
-        'logs': utils.paginate(request, query_set)[3]
-    }
+    context = dict()
+    context['page'], context['plim'], context['pcnt'], context['logs'] = utils.paginate(request, 50, query_set)
     context['logs'] = [log_to_dict(log) for log in context['logs']]
     return render(request, 'logs.html', context)

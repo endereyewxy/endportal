@@ -1,5 +1,4 @@
 from django import template
-from django.urls import reverse
 
 register = template.Library()
 
@@ -23,15 +22,12 @@ def do_side_card(parser, token):
 @register.tag('blog_tag')
 def do_blog_tag(parser, token):
     """
-    Crate a tag. Accept at most two arguments, the first one must be the tag text, and the second one (if presented)
-    must be `nolink` indicating that the tag is not displayed in an <a> but a <div>.
+    Crate a tag. Accept exactly one argument, which is the tag text.
     """
     bits = token.split_contents()
-    if len(bits) != 2 and len(bits) != 3:
-        raise template.TemplateSyntaxError("%r tag requires one or two arguments" % token.contents.split()[0])
-    if len(bits) == 3 and bits[-1] != 'nolink':
-        raise template.TemplateSyntaxError("wrong last argument for %r tag" % token.contents.split()[0])
-    return BlogTagNode(parser.compile_filter(bits[1]), len(bits) == 3)
+    if len(bits) != 2:
+        raise template.TemplateSyntaxError("%r tag requires exactly one argument" % token.contents.split()[0])
+    return BlogTagNode(parser.compile_filter(bits[1]))
 
 
 @register.tag('publish_date')
@@ -65,15 +61,11 @@ class SideCardNode(template.Node):
 
 
 class BlogTagNode(template.Node):
-    def __init__(self, tag, nolink):
-        self.tag, self.nolink = tag, nolink
+    def __init__(self, tag):
+        self.tag = tag
 
     def render(self, context):
-        tag = self.tag.resolve(context)
-        if self.nolink:
-            return f'<div class="badge badge-secondary">{tag}</div>'
-        else:
-            return f'<a href="{reverse("blog-indices")}?keyword={tag}" class="badge badge-secondary">{tag}</a>'
+        return f'<span class="badge bg-secondary">{self.tag.resolve(context)}</span>'
 
 
 class PublishDateNode(template.Node):

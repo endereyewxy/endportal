@@ -133,18 +133,16 @@ body {
   .card-body > ul {
     > ul, & {
       > li::before {
-        font-family: "Font Awesome 5 Free", monospace;
-        font-weight: 900;
         margin-right: 0.5rem;
       }
     }
 
     > ul > li::before {
-      content: '\f0da';
+      content: url('data:image/svg+xml; utf-8, <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 12.796L11.481 8 6 3.204v9.592zm.659.753l5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/></svg>');
     }
 
     > li::before {
-      content: '\f105';
+      content: url('data:image/svg+xml; utf-8, <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-right-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>');
     }
   }
 }
@@ -191,8 +189,9 @@ body {
   td {
     padding: 0 !important;
   }
-}
 
-.linenos {
-  width: 3rem;
+  // Fix line number width.
+  .linenos {
+    width: 3rem;
+  }
 }

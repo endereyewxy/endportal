@@ -4,20 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>网络控制台</title>
-    {# TODO change wcui.css to wcmd.css. #}
-    <link rel="stylesheet" href="{% static 'css/wcui.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
-          integrity="sha512-rO2SXEKBSICa/AfyhEK5ZqWFCOok1rcgPYfGOqtX35OyiraBg6Xa4NnBJwXgpIRoXeWjcAmcQniMhp22htDc6g=="
-          crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
-          integrity="sha512-xA6Hp6oezhjd6LiLZynuukm80f8BoZ3OpcEYaqKoCV3HKQDrYjDE1Gu8ocxgxoXmwmSzM4iqPvCsOkQNiu41GA=="
-          crossorigin="anonymous"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"
-            integrity="sha512-DUC8yqWf7ez3JD1jszxCWSVB0DMP78eOyBpMa5aJki1bIRARykviOuImIczkxlj1KhVSyS16w2FSQetkD4UU2w=="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"
-            integrity="sha512-I5TkutApDjnWuX+smLIPZNhw+LhTd8WrQhdCKsxCFRSvhFx2km8ZfEpNIhF9nq04msHhOkE8BMOBj5QE07yhMA=="
-            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/wcmd.css' %}">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css"
+          integrity="sha256-IdfIcUlaMBNtk4Hjt0Y6WMMZyMU0P9PN/pH+DFzKxbI=" rel="stylesheet">
+    <script crossorigin="anonymous"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+            src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
 </head>
 <body class="text-white bg-dark">
 <div class="container d-flex flex-column">
@@ -25,42 +17,21 @@
     <form class="mb-3">
         {% csrf_token %}
         <div class="input-group mb-3">
-            <input type="text" name="_" class="form-control text-white bg-dark" aria-label="指令" required>
-            <div class="input-group-append">
-                <button class="btn btn-outline-light" type="submit"><i class="fa fa-terminal"></i></button>
-            </div>
+            <input aria-label="" class="form-control text-white bg-dark" name="_" required type="text">
+            <button class="btn btn-outline-light" type="submit">
+                <svg class="bi bi-terminal-fill" fill="currentColor" height="1em" viewBox="0 0 16 16" width="1em"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3zm9.5 5.5h-3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm-6.354-.354L4.793 6.5 3.146 4.854a.5.5 0 1 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708z"
+                          fill-rule="evenodd"></path>
+                </svg>
+            </button>
         </div>
     </form>
     <div class="response"></div>
- </div>
-<script type="text/javascript">
-    $(document).ready(() => {
-        const paragraphs = (ico, cmd, txt) => {
-            ico = ico ? 'fa fa-check' : 'fa fa-times';
-            txt = txt.replace(/\n/g, '</p><p><span>&nbsp;</span>').replace(/\s/g, '&nbsp;');
-            return `<p class="command"><span><i class="${ico}"></i></span>${cmd}</p><p><span>&nbsp;</span>${txt}</p>`;
-        };
-        const switchBtnState = () => {
-            const btn = $('form button'), classes = 'spinner-border spinner-border-sm';
-            btn[0].hasAttribute('disabled')
-                ? btn.removeAttr('disabled').html(btn.children('.sr-only').html())
-                : btn.attr('disabled', 'disabled')
-                    .html(`<span class="${classes}"></span><span class="sr-only">${btn.html()}</span>`);
-        };
-        $('form').submit((evt) => {
-            evt.preventDefault();
-            const command = $('input[name=_]').val();
-            // TODO #goto fake command.
-            switchBtnState();
-            $.post("{% url 'wcmd-exec' %}", $('form').serializeArray(), (resp) => {
-                switchBtnState();
-                $(paragraphs(true, command, resp)).prependTo($('.response'));
-            }).fail((resp) => {
-                switchBtnState();
-                $(paragraphs(false, command, resp.responseText || 'Network failed.')).prependTo($('.response'));
-            });
-        });
-    });
-</script>
+</div>
 </body>
+<script crossorigin="anonymous"
+        integrity="sha256-u+Q/eQIe6P5wU4K8maihJOQkhqBbf7K1NN68GwTpNz0="
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script src="{% static 'js/wcmd.min.js' %}"></script>
 </html>

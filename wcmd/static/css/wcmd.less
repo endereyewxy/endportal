@@ -1,0 +1,34 @@
+.container {
+  height: 100vh;
+  font-family: monospace;
+}
+
+// Remove vertical scrollbar of the response area.
+.response {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-y: auto;
+}
+
+.response {
+  // Simulate indent for command response texts.
+  span {
+    float: left;
+    width: 2rem;
+  }
+
+  // Set different colors for success commands and failed commands
+  > .success {
+    color: lightgreen;
+    border-bottom: lightgreen 1px solid;
+  }
+
+  > .failed {
+    color: lightcoral;
+    border-bottom: lightcoral 1px solid;
+  }
+}

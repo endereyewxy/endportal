@@ -1,68 +1,69 @@
 {% extends 'blog.html' %}
 {% load blog %}
+{% block title %}
+    {% ifequal path '' %}
+        新增博客
+    {% else %}
+        {{ path | last | last }}
+    {% endifequal %}
+{% endblock %}
 {% block sidecards %}
     {% sidecard '编辑' %}
-        <div class="form-group">
-            <label for="publish-publish-path">路径</label>
-            <input id="publish-publish-path" type="text" name="publish_path" class="form-control" form="publish-form"
-                   required value="{{ publish_path }}">
+        <div class="mb-3">
+            <input aria-label="" class="form-control" form="publish-form" name="publish_path" placeholder="发布路径"
+                   required type="text" value="{{ publish_path }}">
         </div>
-        <div class="form-group">
-            <label for="publish-content-name">标题</label>
-            <input id="publish-content-name" type="text" name="content_name" class="form-control" form="publish-form"
-                   required value="{{ content_name }}">
+        <div class="mb-3">
+            <input aria-label="" class="form-control" form="publish-form" name="content_name" placeholder="标题"
+                   required type="text" value="{{ content_name }}">
         </div>
-        <div class="form-group">
-            <label for="publish-content-type">类型</label>
-            <input id="publish-content-type" type="text" name="content_type" class="form-control" form="publish-form"
-                   required value="{{ content_type }}">
+        <div class="mb-3">
+            <input aria-label="" class="form-control" form="publish-form" name="content_type" placeholder="类型"
+                   required type="text" value="{{ content_type }}">
         </div>
-        <div class="form-group">
-            <label for="publish-content-tags">标签</label>
-            <input id="publish-content-tags" type="text" name="content_tags" class="form-control" form="publish-form"
-                   required value="{{ content_tags }}">
+        <div class="mb-3">
+            <input aria-label="" class="form-control" form="publish-form" name="content_tags" placeholder="标签"
+                   required type="text" value="{{ content_tags }}">
         </div>
-        <div class="form-group">
-            <label for="publish-publish-date">发布日期</label>
-            <input id="publish-publish-date" type="date" name="publish_date" class="form-control" form="publish-form"
-                   required value="{{ publish_date | date:"Y-m-d" }}">
+        <div class="mb-3">
+            {% with pd=publish_date %}
+                <input aria-label="" class="form-control" form="publish-form" name="publish_date" placeholder="发布时间"
+                       required type="date"
+                       value="{% if pd %}{{ pd | date:"Y-m-d" }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            {% endwith %}
         </div>
-        <div class="form-group">
-            <label for="publish-publish-desc">发布描述</label>
-            <input id="publish-publish-desc" type="text" name="publish_desc" class="form-control" form="publish-form"
-                   required value="{{ publish_desc }}">
+        <div class="mb-3">
+            <input aria-label="" class="form-control" form="publish-form" name="publish_desc" placeholder="发布描述"
+                   required type="text" value="{{ publish_desc }}">
         </div>
         <div class="text-right">
-            <button type="submit" class="btn btn-primary" form="publish-form">发布</button>
+            <button class="btn btn-primary" form="publish-form" type="submit">发布</button>
         </div>
     {% endsidecard %}
 {% endblock %}
 {% block content %}
     <div class="card-body">
         <div class="markdown-body mb-3"><h2>编辑</h2></div>
-        <form id="publish-form" class="no-smooth" action="{% url 'blog-publish' %}" method="post"
-              enctype="multipart/form-data">
+        <form action="{% url 'blog-publish' %}" class="no-smooth" enctype="multipart/form-data" id="publish-form"
+              method="post">
             {% csrf_token %}
             {% if id is not None %}
-                <input type="hidden" name="id" value="{{ id }}">
+                <input name="id" type="hidden" value="{{ id }}">
             {% endif %}
-            <div class="form-group">
-                <label for="publish-content-desc">描述</label>
-                <textarea id="publish-content-desc" type="text" name="content_desc" required
-                          class="form-control">{{ content_desc }}</textarea>
+            <div class="mb-3">
+                <textarea aria-label="" class="form-control" name="content_desc" placeholder="简介" required
+                          type="text">{{ content_desc }}</textarea>
             </div>
-            <div class="form-group">
-                <label for="publish-content-urls">链接</label>
-                <textarea id="publish-content-urls" type="text" name="content_urls"
-                          class="form-control">{{ content_urls }}</textarea>
+            <div class="mb-3">
+                <textarea aria-label="" class="form-control" name="content_urls" placeholder="相关连接"
+                          type="text">{{ content_urls }}</textarea>
             </div>
-            <div class="form-group">
-                <input id="file-upload" name="images" type="file" multiple>
+            <div class="mb-3">
+                <input id="file-upload" multiple name="images" type="file">
             </div>
-            <div class="form-group">
-                <label for="publish-content-text">正文</label>
-                <textarea id="publish-content-text" type="text" name="content_text" required
-                          class="form-control">{{ content_text }}</textarea>
+            <div class="mb-3">
+                <textarea aria-label="" class="form-control" name="content_text" placeholder="正文" required
+                          type="text">{{ content_text }}</textarea>
             </div>
         </form>
     </div>
@@ -70,20 +71,22 @@
         This script is here so that smoothState.js can reload it after smooth transitions. This is also the why we use
         js instead of html to render file uploaders and text areas.
     {% endcomment %}
+    <!--suppress JSUnresolvedFunction -->
     <script type="text/javascript">
         $(document).ready(() => {
-            autosize($('textarea'));
+            $('textarea').each(function () {
+                $(this).css('resize', 'none').css('height', this.scrollHeight + 'px').css('overflow-y', 'hidden');
+            }).on('input', function () {
+                $(this).css('height', 'auto').css('height', this.scrollHeight + 'px');
+            });
             $('#file-upload').fileinput({
-                showCaption: true,
                 showClose: false,
                 showUpload: false,
                 previewFileType: 'image',
                 allowedFileExtensions: ['png', 'jpg', 'jpeg', 'gif', 'svg'],
                 removeIcon: '<i class="fas fa-trash-alt"></i>',
-                uploadIcon: '<i class="fas fa-upload"></i>',
                 browseIcon: '<i class="fas fa-folder-open"></i>',
                 removeLabel: '',
-                uploadLabel: '',
                 browseLabel: ''
             });
         });

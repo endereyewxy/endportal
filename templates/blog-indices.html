@@ -12,18 +12,12 @@
     <div class="list-group list-group-flush mb-3">
         {% for blog in blog %}
             <div class="card list-group-item list-group-item-action">
-                <a href="{% url 'blog-content' path=blog.publish_path|add:'/' %}" class="row no-gutters stretched-link">
+                <a class="row no-gutters stretched-link" href="{% url 'blog-content' path=blog.publish_path|add:'/' %}">
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
-                        {% comment %}
-                            We declared the whole card to be `stretched-link`, so that we could click anywhere inside
-                            the card to navigate to the corresponding article. But this also causes a problem: The
-                            `stretched-link` class will extend every <a> tag in its content, and if there are multiple
-                            ones, it can trigger a render issue. So our blog tags cannot have links on them.
-                        {% endcomment %}
                         <div class="mb-3">
                             {% for tag in blog.content_tags %}
-                                {% blog_tag tag nolink %}
+                                {% blog_tag tag %}
                             {% endfor %}
                         </div>
                         <p>{{ blog.content_desc }}</p>
@@ -33,5 +27,5 @@
             </div>
         {% endfor %}
     </div>
-    {% paginator page plim pcnt %}
+    {% paginator page pcnt %}
 {% endblock %}
