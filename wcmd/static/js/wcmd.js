@@ -13,14 +13,27 @@ $(document).ready(() => {
     $('form').submit((evt) => {
         evt.preventDefault();
         const command = $('input[name=_]').val();
-        // TODO #goto fake command.
-        switchBtnState();
-        $.post("/wcmd/exec/", $('form').serializeArray(), (resp) => {
+        if (command.startsWith('#')) {
+            const commands = command.split(/\s+/g), response = $('.response');
+            if (commands[0] === '#goto') {
+                if (commands.length !== 2) {
+                    $(paragraphs(false, command, 'Expected one and only one argument')).prependTo(response);
+                } else {
+                    window.location.href = commands[1]
+                }
+            }
+        } else {
             switchBtnState();
-            $(paragraphs(true, command, resp)).prependTo($('.response'));
-        }).fail((resp) => {
-            switchBtnState();
-            $(paragraphs(false, command, resp.responseText || 'Network failed.')).prependTo($('.response'));
-        });
-    });
-});
+            $.post("/wcmd/exec/", $('form').serializeArray(), (resp) => {
+                switchBtnState();
+                $(paragraphs(true, command, resp)).prependTo($('.response'));
+            }).fail((resp) => {
+                switchBtnState();
+                $(paragraphs(false, command, resp.responseText || 'Network failed.'))
+                    .prependTo($('.response'));
+            });
+        }
+    })
+    ;
+})
+;
