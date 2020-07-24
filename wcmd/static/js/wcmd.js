@@ -12,15 +12,16 @@ $(document).ready(() => {
     };
     $('form').submit((evt) => {
         evt.preventDefault();
-        const command = $('input[name=_]').val();
+        const command = $('input[name=_]').val().trim();
         if (command.startsWith('#')) {
-            const commands = command.split(/\s+/g), response = $('.response');
-            if (commands[0] === '#goto') {
-                if (commands.length !== 2) {
-                    $(paragraphs(false, command, 'Expected one and only one argument')).prependTo(response);
-                } else {
-                    window.location.href = commands[1]
-                }
+            if (command === '#index') {
+                window.location.href = '/';
+            }
+            if (command === '#blog') {
+                window.location.href = '/blog/'
+            }
+            if (command === '#logs') {
+                window.location.href = '/logs/'
             }
         } else {
             switchBtnState();
