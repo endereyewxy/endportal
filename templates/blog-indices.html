@@ -2,24 +2,25 @@
 {% load blog %}
 {% load components %}
 {% block title %}
-    {% ifequal path '' %}
-        个人博客
+    {% if skey %}
+        搜索：{{ skey }}
     {% else %}
-        {{ path | last | last }}
-    {% endifequal %}
+        {% ifequal path|length 0 %}
+            博客
+        {% else %}
+            {{ path | last | last }}
+        {% endifequal %}
+    {% endif %}
 {% endblock %}
 {% block content %}
     <div class="list-group list-group-flush mb-3">
         {% for blog in blog %}
             <div class="card list-group-item list-group-item-action">
-                <a class="row no-gutters stretched-link" href="{% url 'blog-content' path=blog.publish_path|add:'/' %}">
+                <a class="row black-link no-gutters stretched-link"
+                   href="{% url 'blog-content' path=blog.publish_path|add:'/' %}">
                     <div class="card-body">
                         <div class="markdown-body"><h2>{{ blog.content_name }}</h2></div>
-                        <div class="mb-3">
-                            {% for tag in blog.content_tags %}
-                                {% blog_tag tag %}
-                            {% endfor %}
-                        </div>
+                        <div class="mb-3">{% blog_tags blog.content_tags %}</div>
                         <p>{{ blog.content_desc }}</p>
                         {% publish_date blog.publish_date blog.publish_desc %}
                     </div>

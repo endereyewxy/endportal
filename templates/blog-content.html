@@ -1,5 +1,8 @@
 {% extends 'blog.html' %}
 {% load blog %}
+{% block title %}
+    {{ content_name }}
+{% endblock %}
 {% block sidecards %}
     {% sidecard content_name %}
         <p>{{ content_desc }}</p>
@@ -11,16 +14,16 @@
                 {% if name is None %}
                     <ul>
                         {% for name, href in href %}
-                            <li><a href="#" onclick="smoothScroll('#{{ href }}')">{{ name }}</a></li>
+                            <li><a class="black-link" href="#" onclick="sst('#{{ href }}')">{{ name }}</a></li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <li><a href="#" onclick="smoothScroll('#{{ href }}')">{{ name }}</a></li>
+                    <li><a class="black-link" href="#" onclick="sst('#{{ href }}')">{{ name }}</a></li>
                 {% endif %}
             {% endfor %}
         </ul>
     {% endsidecard %}
-    {% ifnotequal content_urls '' %}
+    {% ifnotequal content_urls|length 0 %}
         {% sidecard '相关连接' %}
             <ul>
                 {% for title, href in content_urls %}
@@ -31,9 +34,9 @@
                         We need to know this so that we can add smooth transitions to blog navigations.
                     {% endcomment %}
                     {% if href|slice:":4" == 'http' %}
-                        <li><a class="no-smooth" href="{{ href }}">{{ title }}</a></li>
+                        <li><a class="no-smooth black-link" href="{{ href }}">{{ title }}</a></li>
                     {% else %}
-                        <li><a href="{{ href }}">{{ title }}</a></li>
+                        <li><a class="black-link" href="{{ href }}">{{ title }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

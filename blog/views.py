@@ -156,12 +156,11 @@ def indices(request):
     Log.new_log(request, 'blog', 'search', keyword)
     # We should disable subdirectories since this is not a real access path.
     context = get_universal_context('', False)
-    # The breadcrumb part needs extra handling.
-    context['path'] = [('#', '搜索')]
     query_set = Blog.objects \
         .filter(Q(content_name__icontains=keyword) | Q(content_tags__icontains=keyword)) \
         .order_by('-publish_date')
     context['page'], context['plim'], context['pcnt'], context['blog'] = utils.paginate(request, 10, query_set)
+    context['blog'] = [blog_to_dict(blog, False) for blog in context['blog']]
     # This parameter is used to fill out the default value of the search bar.
     context['skey'] = keyword
     return render(request, 'blog-indices.html', context)
@@ -177,8 +176,6 @@ def publish(request):
     # Check the request method to distinguish between page requests and actual publishes.
     if request.method == 'GET':
         context = get_universal_context('', False)
-        # The breadcrumb part needs extra handling, similar to indices.
-        context['path'] = [('#', '发布')]
         # Add field 'stit' so that the edit option will not appear in the top-right menu again.
         context['stit'] = ''
         # Get an existing blog from database and fill out the default values, if an `id` is given. Otherwise, this is
@@ -199,12 +196,15 @@ def publish(request):
         else:
             # This is required because django refuses to create a new blog object with empty publish date.
             blog = Blog.objects.create(publish_date=request.POST.get('publish_date'))
-        # Handle images first.
-        # Validate the images first, if any of them is invalid, the whole publish request will not be handled.
-        for image in request.FILES.getlist('images'):
+        # Handle static resources first.
+        # Validate the uploaded files first, if any of them is invalid, the whole publish request will not be handled.
+        for image in request.FILES.getlist('static_files'):
             if image.size > 10485760:  # 10M
-                return JsonResponse({'error': '图片' + image.name + '体积过大'})
-        for image in request.FILES.getlist('images'):
+                return JsonResponse({'error': image.name + '体积过大'})
+        for image in request.FILES.getlist('static_files'):
+            # Although we do not restrict the type of uploaded files, we still store all those files under `image`
+            # directory.
+            # TODO this may be improvable.
             with open(os.path.join(settings.STATIC_ROOT, 'images', image.name), 'wb') as f:
                 for chunk in image.chunks():
                     f.write(chunk)

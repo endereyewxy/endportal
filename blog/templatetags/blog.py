@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 
 register = template.Library()
 
@@ -19,15 +20,15 @@ def do_side_card(parser, token):
     return SideCardNode(parser.compile_filter(title), body)
 
 
-@register.tag('blog_tag')
-def do_blog_tag(parser, token):
+@register.tag('blog_tags')
+def do_blog_tags(parser, token):
     """
-    Crate a tag. Accept exactly one argument, which is the tag text.
+    Crate a bunch of tags. Accept exactly one argument, which is the list of tags' text.
     """
     bits = token.split_contents()
     if len(bits) != 2:
         raise template.TemplateSyntaxError("%r tag requires exactly one argument" % token.contents.split()[0])
-    return BlogTagNode(parser.compile_filter(bits[1]))
+    return BlogTagsNode(parser.compile_filter(bits[1]))
 
 
 @register.tag('publish_date')
@@ -60,12 +61,18 @@ class SideCardNode(template.Node):
             f'</div>'
 
 
-class BlogTagNode(template.Node):
-    def __init__(self, tag):
-        self.tag = tag
+class BlogTagsNode(template.Node):
+    def __init__(self, tags):
+        self.tags = tags
 
     def render(self, context):
-        return f'<span class="badge bg-secondary">{self.tag.resolve(context)}</span>'
+        html = ''
+        for tag in self.tags.resolve(context):
+            html += \
+                f'<a class="badge bg-secondary text-decoration-none" href="{reverse("blog-indices")}?keyword={tag}">' \
+                f'    {tag}' \
+                f'</a>\n'
+        return html
 
 
 class PublishDateNode(template.Node):

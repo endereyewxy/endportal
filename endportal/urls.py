@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.urls import include, path
 
-from endportal import views
+from _pub import views
 
 urlpatterns = [
     path('', views.index),

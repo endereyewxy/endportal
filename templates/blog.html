@@ -5,11 +5,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>
-        {% block title %}
-            {{ content_name }}
-        {% endblock %}
-    </title>
+    <title>{% block title %}{% endblock %}</title>
     <link href="{% static 'css/blog.css' %}" rel="stylesheet">
     <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css"
           integrity="sha256-IdfIcUlaMBNtk4Hjt0Y6WMMZyMU0P9PN/pH+DFzKxbI=" rel="stylesheet">
@@ -27,7 +23,7 @@
 <body>
 <div class="d-flex flex-column min-vh-100" id="main">
     {% navigator %}
-        <form action="{% url 'blog-indices' %}" method="get">
+        <form action="{% url 'blog-indices' %}" class="mb-3 mb-lg-0" method="get">
             <div class="input-group mr-sm-2">
                 <input aria-label="" class="form-control" name="keyword" placeholder="搜索" required type="text"
                        value="{{ skey }}">
@@ -56,36 +52,35 @@
             {% endif %}
         {% endif %}
     {% endnavigator %}
-    <div class="container-fluid flex-grow-1">
+    <div class="container-fluid flex-grow-1 w-75">
         <div class="row">
-            <div class="col-1"></div>
-            <div class="col-10">
-                <ul class="breadcrumb shadow">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'blog-content' path='' %}">博客</a>
-                    </li>
+            <ul class="breadcrumb shadow">
+                <li class="breadcrumb-item"><a class="black-link" href="{% url 'blog-content' path='' %}">博客</a></li>
+                {% if skey %}
+                    <li class="breadcrumb-item active">搜索</li>
+                    <li class="breadcrumb-item active">{{ skey }}</li>
+                {% else %}
                     {% for href, name in path %}
                         {% if forloop.last %}
                             <li class="breadcrumb-item active">{{ name }}</li>
                         {% else %}
                             <li class="breadcrumb-item">
-                                <a href="{% url 'blog-content' path='' %}{{ href }}">{{ name }}</a>
+                                <a class="black-link" href="{% url 'blog-content' path='' %}{{ href }}">{{ name }}</a>
                             </li>
                         {% endif %}
                     {% endfor %}
-                </ul>
-            </div>
+                {% endif %}
+            </ul>
         </div>
         <div class="row mb-3">
-            <div class="col-1"></div>
-            <div class="col-2 sidebar">
+            <div class="col-lg-3 sidebar">
                 {% block sidecards %}{% endblock %}
                 {% if subd is not None %}
                     {% sidecard '下属目录' %}
                         <ul>
                             {% for sub_path in subd %}
-                                <li class="mb-3">
-                                    <a href="{{ request.path }}{{ sub_path }}/">{{ sub_path }}</a>
+                                <li>
+                                    <a class="black-link" href="{{ request.path }}{{ sub_path }}/">{{ sub_path }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -94,22 +89,19 @@
                 {% sidecard '最近' %}
                     <ul>
                         {% for title, date, href in rect %}
-                            <li class="mb-3">
-                                <a href="{% url 'blog-content' path='' %}{{ href }}/">{{ title }}</a>
-                                {% publish_date date %}
+                            <li>
+                                <a class="black-link" href="{% url 'blog-content' path='' %}{{ href }}/">
+                                    {{ title }}{% publish_date date %}
+                                </a>
                             </li>
                         {% endfor %}
                     </ul>
                 {% endsidecard %}
                 {% sidecard '标签' %}
-                    <h4>
-                        {% for tag in tags %}
-                            {% blog_tag tag %}
-                        {% endfor %}
-                    </h4>
+                    <h4>{% blog_tags tags %}</h4>
                 {% endsidecard %}
             </div>
-            <div class="col-8">
+            <div class="col-lg-9">
                 <div class="card shadow content">{% block content %}{% endblock %}</div>
             </div>
         </div>
@@ -121,9 +113,6 @@
 <script crossorigin="anonymous"
         integrity="sha256-u+Q/eQIe6P5wU4K8maihJOQkhqBbf7K1NN68GwTpNz0="
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.min.js"></script>
-<script crossorigin="anonymous"
-        integrity="sha256-hjCK7fhuMVuuJlIWHtxO9w2yzM+gN6cI5PbTy+aSO1o="
-        src="https://cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/fileinput.min.js"></script>
 <script crossorigin="anonymous"
         integrity="sha256-1qhJwAgsSPVSSjlQVTewHS49eaoAbOz651dveUANVBI="
         src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>

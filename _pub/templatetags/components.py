@@ -95,12 +95,16 @@ class NavigatorNode(template.Node):
             html_user_menu = ''
         html = \
             f'<style>nav.fixed-top+div{{margin-top:5rem}}</style>' \
-            f'<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow" style="height:3.5rem">' \
+            f'<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow">' \
             f'    <div class="container-fluid">' \
-            f'        <a class="navbar-brand no-smooth" href="/">' \
-            f'            <img alt="主页" src="{settings.STATIC_URL + "home.png"}" style="height:3.5rem">' \
-            f'        </a>' \
-            f'        <div class="collapse navbar-collapse">' \
+            f'        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapse">' \
+            f'            <span class="navbar-toggler-icon"></span>' \
+            f'        </button>' \
+            f'        <div class="collapse navbar-collapse" id="collapse"> ' \
+            f'            <a class="no-smooth navbar-brand" href="/">' \
+            f'                <img alt="主页" class="d-none d-lg-block" height="30"' \
+            f'                     src="{settings.STATIC_URL + "home.png"}">' \
+            f'            </a>' \
             f'            {self.nodelist_items.render(context) if self.nodelist_items else ""}' \
             f'            <ul class="navbar-nav ml-2 mr-auto">' \
             f'                {self.nodelist_links.render(context) if self.nodelist_links else ""}' \
@@ -184,7 +188,7 @@ class FooterNode(template.Node):
             f'    <hr style="margin:auto;margin-bottom:1rem;width:85vw">' \
             f'    <div class="text-center w-100">' \
             f'        <p>' \
-            f'            <svg height="1.5rem" viewBox="0 0 24 24" width="1.5rem" xmlns="http://www.w3.org/2000/svg">' \
+            f'            <svg height="1.5em" viewBox="0 0 24 24" width="1.5em" xmlns="http://www.w3.org/2000/svg">' \
             f'                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 ' \
             f'11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333' \
             f'-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 ' \

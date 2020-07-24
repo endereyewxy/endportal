@@ -58,12 +58,13 @@
                 <textarea aria-label="" class="form-control" name="content_urls" placeholder="相关连接"
                           type="text">{{ content_urls }}</textarea>
             </div>
-            <div class="mb-3">
-                <input id="file-upload" multiple name="images" type="file">
+            <div class="form-file mb-3">
+                <input class="form-file-input" multiple name="static_files" type="file">
+                <label class="form-file-label"><span class="form-file-text">上传静态文件</span></label>
             </div>
             <div class="mb-3">
-                <textarea aria-label="" class="form-control" name="content_text" placeholder="正文" required
-                          type="text">{{ content_text }}</textarea>
+                <textarea aria-label="" class="form-control font-monospace" name="content_text" placeholder="正文"
+                          required type="text">{{ content_text }}</textarea>
             </div>
         </form>
     </div>
@@ -71,7 +72,6 @@
         This script is here so that smoothState.js can reload it after smooth transitions. This is also the why we use
         js instead of html to render file uploaders and text areas.
     {% endcomment %}
-    <!--suppress JSUnresolvedFunction -->
     <script type="text/javascript">
         $(document).ready(() => {
             $('textarea').each(function () {
@@ -79,15 +79,12 @@
             }).on('input', function () {
                 $(this).css('height', 'auto').css('height', this.scrollHeight + 'px');
             });
-            $('#file-upload').fileinput({
-                showClose: false,
-                showUpload: false,
-                previewFileType: 'image',
-                allowedFileExtensions: ['png', 'jpg', 'jpeg', 'gif', 'svg'],
-                removeIcon: '<i class="fas fa-trash-alt"></i>',
-                browseIcon: '<i class="fas fa-folder-open"></i>',
-                removeLabel: '',
-                browseLabel: ''
+            $('.form-file-input').change(function () {
+                let files = [];
+                for (let i = 0; i < $(this)[0].files.length; i++) {
+                    files.push($(this)[0].files[i].name);
+                }
+                $(this).parent().find('.form-file-text').text(files.join(', '));
             });
         });
     </script>

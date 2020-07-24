@@ -3,7 +3,7 @@
  * manually scroll the page.
  * Argument: The target position, can be a number (pixels from the top) or a jQuery selector (will scroll to that object).
  */
-const smoothScroll = (function (animationTime) {
+const sst = (function (animationTime) {
     let st_pos, ed_pos, st_time, rendering = false;
     const scroll = (target) => {
         st_pos = document.documentElement.scrollTop;
@@ -139,7 +139,7 @@ $(document).ready(() => {
             render: (old_page) => {
                 old_page.find('.sidebar, .content').addClass('animate__animated animate__faster animate__fadeOutLeft');
                 old_page.find('.footer').addClass('animate__animated animate__faster animate__fadeOut');
-                smoothScroll(0);
+                sst(0);
                 smoothState.restartCSSAnimations();
             }
         },
