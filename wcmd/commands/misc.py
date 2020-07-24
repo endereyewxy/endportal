@@ -5,9 +5,11 @@ from django.conf import settings
 
 from wcmd.commands import WebCommand
 
-# UWSGI is only provided in production environment.
-if not settings.DEBUG:
+# UWSGI is only provided in production environment. We try to import it, and do nothing if failed.
+try:
     import uwsgi
+except ModuleNotFoundError:
+    pass
 
 
 class Help(WebCommand):
