@@ -2,6 +2,8 @@ from threading import Thread
 from time import sleep
 
 from django.conf import settings
+from django.contrib.staticfiles.management.commands import collectstatic
+from django.core.management import CommandError
 
 from wcmd.commands import WebCommand
 
@@ -87,4 +89,25 @@ class Restart(WebCommand):
         return 'Restarting in %dms, see you later...' % delay
 
 
-Help(), Restart()
+class CollectStatic(WebCommand):
+    """
+    Collect all static files into static root directory.
+    """
+
+    def __init__(self):
+        super().__init__('collectstatic', 'Collect static files, requires superuser.')
+
+    def __call__(self, request):
+        if not (request.user.is_authenticated and request.user.is_superuser):
+            raise WebCommand.Failed('Access denied, superuser is required.')
+        try:
+            # Enable verbosity to display more information, leave other options to default.
+            result = collectstatic.Command().handle(interactive=False, verbosity=True, link=False, clear=False,
+                                                    dry_run=False, ignore_patterns=[], use_default_ignore_patterns=True,
+                                                    post_process=False)
+            return result
+        except CommandError as e:
+            raise WebCommand.Failed(str(e))
+
+
+Help(), Restart(), CollectStatic()
