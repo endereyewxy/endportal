@@ -1,4 +1,13 @@
+from datetime import datetime
+from platform import uname
+
 from django.shortcuts import redirect, render
+
+# UWSGI is only provided in production environment. We try to import it, and do nothing if failed.
+try:
+    import uwsgi
+except ModuleNotFoundError:
+    pass
 
 
 def index(request):
@@ -12,4 +21,23 @@ def index(request):
     if not request.user.is_authenticated:
         return redirect('blog-content', path='')
     if request.user.is_superuser:
-        return render(request, 'index.html')
+        context = dict()
+        try:
+            context['uwsgi'] = {
+                'proc_num': uwsgi.numproc,
+                'workers': uwsgi.workers(),
+                'started_on': datetime.fromtimestamp(uwsgi.started_on),
+                'master_pid': uwsgi.masterpid(),
+                'buffer_size': uwsgi.buffer_size
+            }
+        except NameError:
+            pass
+        platform = uname()
+        context['system'] = {
+            'system': platform.system + ' ' + platform.release,
+            'version': platform.version,
+            'machine': platform.node,
+            'architecture': platform.machine,
+            'processor': platform.processor
+        }
+        return render(request, 'index.html', context)

@@ -24,7 +24,7 @@
     <li class="nav-item"><a class="nav-link" href="{% url 'wcmd-wcui' %}">命令行</a></li>
 {% endnavigator %}
 <div class="container flex-grow-1">
-    <div class="row d-flex">
+    <div class="row d-flex mb-4">
         <div class="col-6 flex-grow-1">
             <div class="card shadow h-100">
                 <div class="card-body">
@@ -61,6 +61,78 @@
                                 <td>{{ value }}</td>
                             </tr>
                         {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row d-flex mb-4">
+        <div class="col-6 flex-grow-1">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <table class="table table-striped table-hover text-break">
+                        <thead>
+                        <tr>
+                            <th scope="col">UWSGI</th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tr>
+                            <td>工作进程数量</td>
+                            <td>{{ uwsgi.proc_num }}</td>
+                        </tr>
+                        {% for worker in uwsgi.workers %}
+                            <tr>
+                                <td>工作进程{{ worker.id }}</td>
+                                <td>PID：{{ worker.pid }}，重置次数：{{ worker.respawn_count }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>启动时间</td>
+                            <td>{{ uwsgi.started_on | date:"Y-m-d H:i:s" }}</td>
+                        </tr>
+                        <tr>
+                            <td>主进程PID</td>
+                            <td>{{ uwsgi.master_pid }}</td>
+                        </tr>
+                        <tr>
+                            <td>缓冲区大小</td>
+                            <td>{{ uwsgi.buffer_size }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 flex-grow-1">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <table class="table table-striped table-hover text-break">
+                        <thead>
+                        <tr>
+                            <th scope="col">SESSION</th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tr>
+                            <td>系统</td>
+                            <td>{{ system.system }}</td>
+                        </tr>
+                        <tr>
+                            <td>版本</td>
+                            <td>{{ system.version }}</td>
+                        </tr>
+                        <tr>
+                            <td>机器名</td>
+                            <td>{{ system.machine }}</td>
+                        </tr>
+                        <tr>
+                            <td>架构</td>
+                            <td>{{ system.architecture }}</td>
+                        </tr>
+                        <tr>
+                            <td>处理器</td>
+                            <td>{{ system.processor }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
