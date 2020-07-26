@@ -1,8 +1,7 @@
-$(document).ready(() => {
-    const paragraphs = (succ, cmd, txt) => {
-        txt = txt.replace(/\n/g, '</p><p><span>&nbsp;</span>').replace(/\s/g, '&nbsp;');
-        return `<p class="command ${succ ? 'success' : 'failed'}">${cmd}</p><p><span>&nbsp;</span>${txt}</p>`;
-    };
+const wcmd = (url) => $(document).ready(() => {
+    const paragraphs = (succ, cmd, txt) =>
+        `<p class="command ${succ ? 'success' : 'failed'}">${cmd}</p>
+         <p><span>&nbsp;</span>${txt.replace(/\n/g, '</p><p><span>&nbsp;</span>')}</p>`;
     const switchBtnState = () => {
         const btn = $('form button'), classes = 'spinner-border spinner-border-sm';
         btn[0].hasAttribute('disabled')
@@ -13,28 +12,13 @@ $(document).ready(() => {
     $('form').submit((evt) => {
         evt.preventDefault();
         const command = $('input[name=_]').val().trim();
-        if (command.startsWith('#')) {
-            if (command === '#index') {
-                window.location.href = '/';
-            }
-            if (command === '#blog') {
-                window.location.href = '/blog/'
-            }
-            if (command === '#logs') {
-                window.location.href = '/logs/'
-            }
-        } else {
+        switchBtnState();
+        $.post(url, $('form').serializeArray(), (resp) => {
             switchBtnState();
-            $.post("/wcmd/exec/", $('form').serializeArray(), (resp) => {
-                switchBtnState();
-                $(paragraphs(true, command, resp)).prependTo($('.response'));
-            }).fail((resp) => {
-                switchBtnState();
-                $(paragraphs(false, command, resp.responseText || 'Network failed.'))
-                    .prependTo($('.response'));
-            });
-        }
-    })
-    ;
-})
-;
+            $(paragraphs(true, command, resp)).prependTo($('.response'));
+        }).fail((resp) => {
+            switchBtnState();
+            $(paragraphs(false, command, resp.responseText || 'Network failed.')).prependTo($('.response'));
+        });
+    });
+});

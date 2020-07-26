@@ -2,10 +2,22 @@ import re
 
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils import html
 from django.views.decorators.http import require_POST, require_GET
 
 from logs.models import Log
 from wcmd.commands import WebCommand
+
+
+def escape(s):
+    """
+    Escape normal text into html representation. The only difference between this function and `django.util.html.escape`
+    is that this function also escapes whitespaces into `&nbsp;`s.
+    :param s: String to be escaped.
+    :return: Escaped string.
+    :rtype: str
+    """
+    return html.escape(s).replace(' ', '&nbsp;')
 
 
 @require_POST
@@ -67,9 +79,9 @@ def wcmd_exec(request):
         resp = command(request, *args, **kwargs)
         # Use a single space as default if the command returns nothing. The space is needed because the front-end can
         # not correctly render empty strings.
-        return HttpResponse(status=200, content=resp or ' ')
+        return HttpResponse(status=200, content=escape(resp or ' '))
     except WebCommand.Failed as e:
-        return HttpResponse(status=400, content=e.message)
+        return HttpResponse(status=400, content=escape(e.message))
 
 
 @require_GET
