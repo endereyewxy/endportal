@@ -30,7 +30,7 @@ markdown = Markdown(
 
 def get_universal_context(path, sub_dir):
     """
-    Fetches context components which are available in all kinds of blog pages. Including major categories, tags, recent
+    Fetch context components which are available in all kinds of blog pages. Including major categories, tags, recent
     articles, subdirectories and split access path.
     :param path: Access path string.
     :param sub_dir: Whether to process subdirectories or not.
@@ -74,7 +74,7 @@ def get_universal_context(path, sub_dir):
 
 def blog_to_dict(blog, process_content=True):
     """
-    Transforms a blog object into a dictionary. Special fields such as urls and tags are processed into lists.
+    Transform a blog object into a dictionary. Special fields such as urls and tags are processed into lists.
     :param blog: Blog object.
     :param process_content: Whether to process the content field into HTML.
     :return: Dictionary form of the given blog.
@@ -119,7 +119,7 @@ def blog_to_dict(blog, process_content=True):
 @require_GET
 def content(request, path):
     """
-    Blog content page: accepts an access path, and returns the corresponding page.
+    Blog content page: accept an access path, and return the corresponding page.
     If the path has a matching blog, render that blog.
     If the path has not matching blog, but it is the prefix of one or more blogs (i.e. there exists blogs under this
     directory), render an index page.
@@ -149,7 +149,7 @@ def content(request, path):
 @require_GET
 def indices(request):
     """
-    Search page: accepts a keyword and search for it in titles and tags. Renders the search result as an index page.
+    Search page: accept a keyword and search for it in titles and tags. Render the search result as an index page.
     """
     keyword = unquote(request.GET.get('keyword', ''))
     # Add log in all cases.
@@ -170,8 +170,8 @@ def indices(request):
 @user_passes_test(lambda u: u.is_superuser)
 def publish(request):
     """
-    Publish page: Simply renders the publish form if the request method is GET, or actually publishes (creates or
-    modifies) a blog if the request method if POST.
+    Publish page: Simply render the publish form if the request method is GET, or actually publishes (create or modify)
+    a blog if the request method if POST.
     """
     # Check the request method to distinguish between page requests and actual publishes.
     if request.method == 'GET':

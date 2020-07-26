@@ -22,7 +22,7 @@ def log_to_dict(log):
 
 def logs(request):
     """
-    Log page: renders logs according to certain searching criteria.
+    Log page: render logs according to certain searching criteria.
     """
     query_set, search = Log.objects.all().order_by('-src_time'), dict()
     try:
