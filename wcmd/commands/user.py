@@ -36,7 +36,7 @@ class Logout(WebCommand):
 
 class WhoAmI(WebCommand):
     """
-    Find out which user I am. Also will show email and superuser information.
+    Find out which user I am. Also will show email and permission information.
     """
 
     def __init__(self):

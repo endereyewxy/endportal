@@ -9,12 +9,22 @@ class WebCommand:
             self.name, self.desc, self.type, self.default = name, desc, type, default
 
     class Failed(BaseException):
+        """
+        Exception raised when a logic error takes place while executing a command.
+        """
+
         def __init__(self, message):
             self.message = message
 
     # Note: A command will be registered only if it is instantiated, so simply extending this class is not enough.
-    def __init__(self, name, desc):
-        self.name, self.desc, self.pos_params, self.key_params = name, desc, [], {}
+    def __init__(self, name, desc, permission=None):
+        """
+        Initialize a command object and add it to supported commands.
+        :param name: Name of the command.
+        :param desc: Description (brief) of the command.
+        :param permission: Permission required to execute this command. If there are no permissions required, use `None`.
+        """
+        self.name, self.desc, self.permission, self.pos_params, self.key_params = name, desc, permission, [], {}
         WebCommand.commands[name] = self
 
     def __call__(self, *args, **kwargs):

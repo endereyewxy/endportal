@@ -63,7 +63,7 @@ class Help(WebCommand):
 
 class Restart(WebCommand):
     """
-    Restart UWSGI server.
+    Restart UWSGI server, requires superuser permission.
     """
 
     class RestartThread(Thread):
@@ -76,13 +76,11 @@ class Restart(WebCommand):
             uwsgi.reload()
 
     def __init__(self):
-        super().__init__('restart', 'Restart UWSGI server, requires superuser.')
+        super().__init__('restart', 'Restart UWSGI server.', 'superuser')
         self.add_key_param('delay', 'Delay of restarting after executing this command, in milliseconds.', type=int,
                            default=5000)
 
     def __call__(self, request, delay):
-        if not (request.user.is_authenticated and request.user.is_superuser):
-            raise WebCommand.Failed('Access denied, superuser is required.')
         if settings.DEBUG:
             raise WebCommand.Failed('This is not production environment, no UWSGI available.')
         Restart.RestartThread(delay).start()
@@ -91,15 +89,13 @@ class Restart(WebCommand):
 
 class CollectStatic(WebCommand):
     """
-    Collect all static files into static root directory.
+    Collect all static files into static root directory, requires superuser.
     """
 
     def __init__(self):
-        super().__init__('collectstatic', 'Collect static files, requires superuser.')
+        super().__init__('collectstatic', 'Collect static files.', 'superuser')
 
     def __call__(self, request):
-        if not (request.user.is_authenticated and request.user.is_superuser):
-            raise WebCommand.Failed('Access denied, superuser is required.')
         try:
             # Enable verbosity to display more information, leave other options to default.
             result = collectstatic.Command().handle(interactive=False, verbosity=True, link=False, clear=False,

@@ -1,7 +1,8 @@
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
+from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q
 from django.forms import model_to_dict
-from django.http import Http404
 from django.shortcuts import render
 
 from endportal import utils
@@ -20,9 +21,10 @@ def log_to_dict(log):
     return log
 
 
+@permission_required('logs.view_log', raise_exception=True)
 def logs(request):
     """
-    Log page: render logs according to certain searching criteria.
+    Log page: render logs according to certain searching criteria. The current user must have permission to view logs.
     """
     query_set, search = Log.objects.all().order_by('-src_time'), dict()
     try:
@@ -49,7 +51,7 @@ def logs(request):
                                          Q(behavior__icontains=keyword) |
                                          Q(detailed__icontains=keyword))
     except ValueError:
-        raise Http404()
+        raise SuspiciousOperation()
     context = dict()
     context['page'], context['plim'], context['pcnt'], context['logs'] = utils.paginate(request, 50, query_set)
     context['logs'] = [log_to_dict(log) for log in context['logs']]

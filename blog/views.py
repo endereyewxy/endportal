@@ -3,7 +3,7 @@ import re
 from urllib.parse import unquote
 
 from django.conf import settings
-from django.contrib.auth.decorators import user_passes_test, login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.forms import model_to_dict
 from django.http import Http404, JsonResponse
@@ -166,13 +166,17 @@ def indices(request):
     return render(request, 'blog-indices.html', context)
 
 
-@login_required()
-@user_passes_test(lambda u: u.is_superuser)
 def publish(request):
     """
     Publish page: Simply render the publish form if the request method is GET, or actually publishes (create or modify)
     a blog if the request method if POST.
+    Note that creating and modifying requires different permissions.
     """
+    # The permission authenticating part is the same, no matter which method the request is.
+    if (('id' in request.GET or 'id' in request.POST) and not request.user.has_perm('blog.add_blog')) \
+            or not request.user.has_perm('blog.change_blog'):
+        raise PermissionDenied
+
     # Check the request method to distinguish between page requests and actual publishes.
     if request.method == 'GET':
         context = get_universal_context('', False)
