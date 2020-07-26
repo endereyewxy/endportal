@@ -101,7 +101,7 @@ class NavigatorNode(template.Node):
             f'            <span class="navbar-toggler-icon"></span>' \
             f'        </button>' \
             f'        <div class="collapse navbar-collapse" id="collapse"> ' \
-            f'            <a class="no-smooth navbar-brand" href="/">' \
+            f'            <a class="navbar-brand" href="/">' \
             f'                <img alt="主页" class="d-none d-lg-block" height="30"' \
             f'                     src="{settings.STATIC_URL + "home.png"}">' \
             f'            </a>' \

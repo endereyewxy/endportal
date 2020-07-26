@@ -1,4 +1,5 @@
 {% extends 'blog.html' %}
+{% load static %}
 {% load blog %}
 {% block title %}
     {% ifequal path '' %}
@@ -44,7 +45,7 @@
 {% block content %}
     <div class="card-body">
         <div class="markdown-body mb-3"><h2>编辑</h2></div>
-        <form action="{% url 'blog-publish' %}" class="no-smooth" enctype="multipart/form-data" id="publish-form"
+        <form action="{% url 'blog-publish' %}" enctype="multipart/form-data" id="publish-form"
               method="post">
             {% csrf_token %}
             {% if id is not None %}
@@ -68,24 +69,5 @@
             </div>
         </form>
     </div>
-    {% comment %}
-        This script is here so that smoothState.js can reload it after smooth transitions. This is also the why we use
-        js instead of html to render file uploaders and text areas.
-    {% endcomment %}
-    <script type="text/javascript">
-        $(document).ready(() => {
-            $('textarea').each(function () {
-                $(this).css('resize', 'none').css('height', this.scrollHeight + 'px').css('overflow-y', 'hidden');
-            }).on('input', function () {
-                $(this).css('height', 'auto').css('height', this.scrollHeight + 'px');
-            });
-            $('.form-file-input').change(function () {
-                let files = [];
-                for (let i = 0; i < $(this)[0].files.length; i++) {
-                    files.push($(this)[0].files[i].name);
-                }
-                $(this).parent().find('.form-file-text').text(files.join(', '));
-            });
-        });
-    </script>
+    <script src="{% static 'js/publish.min.js' %}"></script>
 {% endblock %}

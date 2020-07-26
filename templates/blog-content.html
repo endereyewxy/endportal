@@ -27,17 +27,7 @@
         {% sidecard '相关连接' %}
             <ul>
                 {% for title, href in content_urls %}
-                    {% comment %}
-                        Determine whether this link is an external link or insite link. We know for sure that insite
-                        links starts with at least a slash and definitely not `http`, so we detect if the first four
-                        characters of the url is `http` to decide whether it is an insite link.
-                        We need to know this so that we can add smooth transitions to blog navigations.
-                    {% endcomment %}
-                    {% if href|slice:":4" == 'http' %}
-                        <li><a class="no-smooth black-link" href="{{ href }}">{{ title }}</a></li>
-                    {% else %}
-                        <li><a class="black-link" href="{{ href }}">{{ title }}</a></li>
-                    {% endif %}
+                    <li><a class="black-link" href="{{ href }}">{{ title }}</a></li>
                 {% endfor %}
             </ul>
         {% endsidecard %}

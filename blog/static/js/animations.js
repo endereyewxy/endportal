@@ -1,7 +1,7 @@
 /**
  * Smoothly scroll to a given position. Can be called before the previous scroll ends. Upon animation, the user cannot
  * manually scroll the page.
- * Argument: The target position, can be a number (pixels from the top) or a jQuery selector (will scroll to that object).
+ * @param animationTime Milliseconds until arrival.
  */
 const sst = (function (animationTime) {
     let st_pos, ed_pos, st_time, rendering = false;
@@ -39,6 +39,11 @@ const sst = (function (animationTime) {
 
 /**
  * Draw a net-liked background animation. This effect increases 10% ~ 20% CPU usage on my computer.
+ * @param starDensity Density of dots.
+ * @param horizontalSpeed Maximum horizontal speed of dots.
+ * @param visionAngle Proportion of the visible area.
+ * @param minDistance Lines became 100% solid if they are shorter than this distance.
+ * @param maxDistance Lines became completely invisible if they are longer than this distance.
  */
 const drawNet = (function (starDensity,
                            horizontalSpeed,
@@ -132,26 +137,7 @@ const drawNet = (function (starDensity,
 );
 
 $(document).ready(() => {
-    const smoothState = $('#main').smoothState({
-        blacklist: '.no-smooth, .markdown-body a',
-        onStart: {
-            duration: 500,
-            render: (old_page) => {
-                old_page.find('.sidebar, .content').addClass('animate__animated animate__faster animate__fadeOutLeft');
-                old_page.find('.footer').addClass('animate__animated animate__faster animate__fadeOut');
-                sst(0);
-                smoothState.restartCSSAnimations();
-            }
-        },
-        onReady: {
-            duration: 500,
-            render: (old_page, new_page) => {
-                old_page.html(new_page);
-                new_page.find('.sidebar, .content').addClass('animate__animated animate__faster animate__fadeInRight');
-                new_page.find('.footer').addClass('animate__animated animate__faster animate__fadeIn');
-                smoothState.restartCSSAnimations();
-            }
-        }
-    }).data('smoothState');
-    drawNet();
+    const effects = [drawNet];
+    // Choose a random effect.
+    effects[Math.floor(Math.random() * effects.length)]();
 });
