@@ -16,7 +16,7 @@ except ModuleNotFoundError:
 
 class Help(WebCommand):
     """
-    Display help information.
+    Display help information. Will ignore unavailable commands.
     """
 
     def __init__(self):
@@ -28,17 +28,17 @@ class Help(WebCommand):
         # one command.
         if command == '':
             # The maximum length of all commands is calculated beforehand, so that we can align the descriptions.
-            max_len = max([len(name) for name in WebCommand.commands])
-            return '\n'.join(
-                [name + ' ' * (max_len - len(name) + 1) + cmd.desc for name, cmd in WebCommand.commands.items()])
+            max_len = max([len(name) for name, cmd in WebCommand.commands.items() if cmd.available(request)])
+            return '\n'.join([name + ' ' * (max_len - len(name) + 1) + cmd.desc
+                              for name, cmd in WebCommand.commands.items() if cmd.available(request)])
         else:
-            if command not in WebCommand.commands:
+            if command not in WebCommand.commands or not WebCommand.commands[command].available(request):
                 raise WebCommand.Failed('Command %s not found.' % command)
             command = WebCommand.commands[command]
             # Generate a usage string, including every single parameter, no matter positional or keyword.
-            order = ' '.join([('&lt;%s&gt;' if param.default is None else '[%s]') % param.name
+            order = ' '.join([('<%s>' if param.default is None else '[%s]') % param.name
                               for param in command.pos_params])
-            named = ' '.join([('&lt;%s&gt;' if param.default is None else '[%s]') % ('--' + name + ' ' + name)
+            named = ' '.join([('<%s>' if param.default is None else '[%s]') % ('--' + name + ' ' + name)
                               for name, param in command.key_params.items()])
             msg = command.name + ' ' + order + ' ' + named + ': ' + command.desc
             # Then append detailed explanations of very parameter. Similar to the previous all-command-introduction, we

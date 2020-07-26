@@ -32,11 +32,9 @@ def wcmd_exec(request):
         if len(text) == 0 or text[0] not in WebCommand.commands:
             raise WebCommand.Failed('No such command.')
         command, args, kwargs = WebCommand.commands[text[0]], [], {}
-        # Check permission.
-        if command.permission is not None and \
-                ((command.permission == 'superuser' and not request.user.is_superuser) or
-                 not request.user.has_perm(command.permission)):
-            return HttpResponse(status=403, content='Permission denied.')
+        # Check whether the command is available for the current request.
+        if not command.available(request):
+            return HttpResponse(status=403, content='Command unavailable')
         # Parse arguments.
         for i in range(1, len(text)):
             # Ignore tokens starting with '--'.

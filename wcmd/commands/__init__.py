@@ -22,7 +22,7 @@ class WebCommand:
         Initialize a command object and add it to supported commands.
         :param name: Name of the command.
         :param desc: Description (brief) of the command.
-        :param permission: Permission required to execute this command. If there are no permissions required, use `None`.
+        :param permission: Permission required to execute this command. If there are no permissions required, use None.
         """
         self.name, self.desc, self.permission, self.pos_params, self.key_params = name, desc, permission, [], {}
         WebCommand.commands[name] = self
@@ -56,6 +56,19 @@ class WebCommand:
         :param default: Default value. If not presented, this parameter is required.
         """
         self.key_params[name] = WebCommand.Parameter(name, desc, type, default)
+
+    def available(self, request):
+        """
+        Check whether the current command is available for the given request.
+        :rtype bool
+        """
+        if self.permission is not None:
+            if self.permission == 'superuser' and not request.user.is_superuser:
+                return False
+            elif not request.user.has_perm(self.permission):
+                # assert self.permission != 'superuser
+                return False
+        return True
 
 
 # We have to import it here to avoid circular imports
