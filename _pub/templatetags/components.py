@@ -201,6 +201,10 @@ class FooterNode(template.Node):
             f'            <a class="text-muted text-decoration-none align-middle" href="https://github.com/endereye">' \
             f'                &nbsp;访问Github' \
             f'            </a>' \
-            f'        </p>' \
+            f'            <span class="text-muted text-decoration-none align-middle">' \
+            f'                &nbsp;&nbsp;© 2020 Copyright ICP证' \
+            f'            </span>' \
+            f'            <a class="text-muted text-decoration-none align-middle"' \
+            f'               href="http://www.beian.miit.gov.cn">鲁ICP备20030355号</a>' \
             f'    </div>' \
             f'</div>'
