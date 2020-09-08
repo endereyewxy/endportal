@@ -7,7 +7,8 @@ const sst = (function (animationTime) {
     let st_pos, ed_pos, st_time, rendering = false;
     const scroll = (target) => {
         st_pos = document.documentElement.scrollTop;
-        ed_pos = Math.floor(typeof (target) === 'string' ? $(target).position().top : target);
+        ed_pos = Math.min($(document).height() - $(window).height(),
+            Math.floor(typeof (target) === 'string' ? $(target).position().top : target));
         st_time = Date.now();
         // Only renders if the previous animations has ended.
         if (!rendering) {
